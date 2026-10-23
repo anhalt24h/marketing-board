@@ -1,0 +1,6 @@
+# 로컬 전용
+board.html
+*.log
+work_log.json
+apps_script/*.local.gs
+.DS_Store

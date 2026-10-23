@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>오늘의 마케팅 과업</title>
+<style>
+:root{
+  --bg:#f6f5f2; --card:#ffffff; --ink:#1d1d1f; --muted:#6b6b70; --line:#e4e2dc;
+  --accent:#2f6fed; --member:#8a4dd8; --yt:#e5322d; --kin:#03a94f; --th:#111111; --chip:#f0eee9;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141416; --card:#1e1e21; --ink:#ececef; --muted:#9c9ca3; --line:#2e2e33;
+    --accent:#6c9bff; --member:#b48cff; --yt:#ff5a55; --kin:#2fd27a; --th:#f2f2f2; --chip:#27272b;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard",sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 16px 60px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:20px}
+h1{margin:0;font-size:26px;letter-spacing:-.02em}
+.date{color:var(--muted);font-size:14px;margin-top:2px}
+.role{display:inline-block;margin-left:8px;font-size:12px;padding:2px 9px;border-radius:99px;background:var(--chip);color:var(--muted);vertical-align:middle}
+.progress-wrap{display:flex;flex-direction:column;gap:8px;min-width:260px;flex:0 1 340px}
+.progress .label{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:4px}
+.bar{height:10px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+.bar.member i{background:var(--member)}
+.notice{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:14px}
+.notice.fb{border-left-color:var(--member)}
+.notice .when{color:var(--muted);font-size:12px;margin-right:6px}
+
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.task{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.task h2{margin:0;font-size:16px;display:flex;align-items:center;gap:8px}
+.dot{width:10px;height:10px;border-radius:50%}
+.task .meta{color:var(--muted);font-size:13px}
+.task .count{font-size:24px;font-weight:700}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto}
+.btn{appearance:none;border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:9px;padding:7px 12px;font:inherit;font-size:13px;cursor:pointer;text-decoration:none}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.small{padding:3px 9px;font-size:12px}
+.check{display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer;user-select:none}
+.check input{width:18px;height:18px;accent-color:var(--accent)}
+.check input:disabled{cursor:not-allowed}
+.task.complete{opacity:.65}
+.who{appearance:none;border:1px solid var(--line);background:var(--chip);color:var(--muted);border-radius:99px;padding:1px 9px;font:inherit;font-size:11.5px;cursor:default}
+.who.member{background:var(--member);border-color:var(--member);color:#fff}
+.manager-view .who{cursor:pointer}
+.manager-view .who:hover{border-color:var(--member)}
+
+section.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:24px}
+section.box:first-of-type{margin-top:0}
+.sec-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}
+.sec-head h2{margin:0;font-size:18px}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.filters .btn.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.group{margin-top:18px}
+.group-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;margin-bottom:10px}
+.group-head h3{margin:0;font-size:15px}
+.kind{font-size:11px;padding:2px 8px;border-radius:99px;background:var(--chip);color:var(--muted)}
+.group-head .right{margin-left:auto;display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted)}
+.group-head .right a{color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.vid{border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;background:var(--card)}
+.vid.mine-member{border-color:var(--member)}
+.vid a.thumb{position:relative;display:block;aspect-ratio:16/9;background:var(--chip)}
+.vid img{width:100%;height:100%;object-fit:cover;display:block}
+.vid .len{position:absolute;right:6px;bottom:6px;background:rgba(0,0,0,.75);color:#fff;font-size:11px;padding:1px 5px;border-radius:4px}
+.vid .body{padding:10px;display:flex;flex-direction:column;gap:4px;flex:1}
+.vid .title{font-size:13.5px;font-weight:600;color:var(--ink);text-decoration:none;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.vid .sub{font-size:12px;color:var(--muted)}
+.vid .foot{margin-top:auto;padding-top:6px;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.vid .check{font-size:13px}
+.vid.done{opacity:.45}
+.vid.done .title{text-decoration:line-through}
+.group.hot{background:color-mix(in srgb,var(--yt) 7%,transparent);border:1px solid color-mix(in srgb,var(--yt) 35%,transparent);border-radius:12px;padding:14px;margin-top:14px}
+.kind.hot{background:var(--yt);color:#fff}
+.rate{display:inline-block;font-size:11.5px;font-weight:700;color:var(--yt)}
+.rank{position:absolute;left:6px;top:6px;background:var(--yt);color:#fff;font-size:12px;font-weight:700;padding:1px 7px;border-radius:6px}
+.empty{color:var(--muted);font-size:13px}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0 16px}
+.stat{background:var(--chip);border-radius:10px;padding:10px 12px}
+.stat b{display:block;font-size:22px}
+.stat span{font-size:12px;color:var(--muted)}
+.fb-form{display:flex;gap:8px;margin:12px 0 4px}
+.fb-form textarea{flex:1;min-height:60px;resize:vertical;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--bg);color:var(--ink);font:inherit;font-size:14px}
+.tablewrap{overflow-x:auto}
+.logtable{width:100%;border-collapse:collapse;font-size:13.5px}
+.logtable th,.logtable td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:center;vertical-align:top}
+.logtable th{color:var(--muted);font-weight:500;font-size:12px;white-space:nowrap}
+.logtable td:first-child,.logtable th:first-child{text-align:left;white-space:nowrap}
+.logtable td.fbcell{text-align:left;min-width:180px;font-size:13px}
+.logtable td.fbcell div+div{margin-top:4px}
+.minibar{display:inline-block;width:50px;height:6px;border-radius:9px;background:var(--line);vertical-align:middle;margin-right:6px;overflow:hidden}
+.minibar i{display:block;height:100%;background:var(--accent)}
+.minibar.member i{background:var(--member)}
+@media (max-width:900px){.summary{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:520px){.grid{grid-template-columns:1fr}h1{font-size:22px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>오늘의 마케팅 과업<span class="role" id="role"></span></h1>
+      <div class="date" id="date"></div>
+    </div>
+    <div class="progress-wrap" id="progress"></div>
+  </header>
+
+  <div id="notices"></div>
+
+  <div class="summary">
+    <div class="task" id="t-yt">
+      <h2><span class="dot" style="background:var(--yt)"></span>유튜브 댓글</h2>
+      <div class="count" id="yt-count">0 / 0</div>
+      <div class="meta" id="yt-meta">아래 영상에 들어가서 댓글 달고 체크하기</div>
+      <div class="btns"><a class="btn primary" href="#videos">영상 목록 보기 ↓</a></div>
+    </div>
+    <div class="task" id="t-kin">
+      <h2><span class="dot" style="background:var(--kin)"></span>네이버 지식인 <button class="who" data-who="kin"></button></h2>
+      <div class="meta">질문 목록 열어서 답변하기</div>
+      <label class="check"><input type="checkbox" data-key="kin">답변 작업 완료</label>
+      <div class="btns">
+        <a class="btn primary" id="kin-link" target="_blank" rel="noopener">지식인 열기</a>
+        <a class="btn" id="kin-search" target="_blank" rel="noopener">"<span id="kin-q"></span>" 최신순</a>
+      </div>
+    </div>
+    <div class="task" id="t-th">
+      <h2><span class="dot" style="background:var(--th)"></span>스레드 <button class="who" data-who="threads"></button></h2>
+      <div class="meta">스레드 + 콘텐츠 시트 두 창 열기</div>
+      <label class="check"><input type="checkbox" data-key="threads">게시 완료</label>
+      <div class="btns">
+        <button class="btn primary" id="th-both">두 창 모두 열기</button>
+        <a class="btn" id="th-link" target="_blank" rel="noopener">스레드</a>
+        <a class="btn" id="sheet-link" target="_blank" rel="noopener">시트</a>
+      </div>
+    </div>
+  </div>
+
+  <section class="box" id="videos">
+    <div class="sec-head">
+      <h2>유튜브 댓글 대상 영상</h2>
+      <div class="filters" id="filters"></div>
+    </div>
+    <div id="groups"></div>
+  </section>
+
+  <section class="box" id="log">
+    <div class="sec-head"><h2>업무 수행 기록</h2></div>
+    <div id="fb-area"></div>
+    <div id="log-body" class="empty">기록을 불러오는 중…</div>
+  </section>
+</div>
+
+<script>
+const DATA = /*__DATA__*/null;
+const NAMES = DATA.members;  // {manager: "팀장", member: "규태"}
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const wd = ["일","월","화","수","목","금","토"];
+const dayLabel = k => `${+k.slice(5,7)}/${+k.slice(8,10)} (${wd[new Date(k + "T00:00:00").getDay()]})`;
+
+// ── 접근 키: 링크의 #k=... 를 기기에 기억 (홈 화면에 추가해도 유지)
+const store = {
+  get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} },
+};
+const hashKey = new URLSearchParams(location.hash.slice(1)).get("k");
+if (hashKey) { store.set("board-key", hashKey); history.replaceState(null, "", location.pathname); }
+const ACCESS = hashKey || store.get("board-key");
+const ONLINE = !!(DATA.api_url && ACCESS);
+addEventListener("hashchange", () => location.reload());  // 다른 접근 링크를 같은 탭에 붙여넣은 경우
+
+let role = ONLINE ? null : "manager";  // 서버 응답으로 확정
+let items = {};      // 항목키 → {assignee, done, doneBy}
+let feedback = [];
+let logRows = [];
+
+// ── 오늘의 전체 항목 목록
+const ITEMS = [];
+DATA.groups.forEach(g => g.videos.forEach(v => ITEMS.push({key: "yt:" + v.id, label: v.title, cat: "yt"})));
+ITEMS.push({key: "kin", label: "네이버 지식인", cat: "kin"}, {key: "threads", label: "스레드", cat: "threads"});
+const ITEM = Object.fromEntries(ITEMS.map(i => [i.key, i]));
+const assignee = key => items[key]?.assignee || "manager";
+const isDone = key => !!items[key]?.done;
+
+// ── 기본 링크
+const d = new Date(DATA.date + "T00:00:00");
+$("date").textContent = `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 (${wd[d.getDay()]})`;
+$("kin-q").textContent = DATA.kin_query;
+$("kin-link").href = DATA.kin_url;
+$("kin-search").href = DATA.kin_search_url;
+$("th-link").href = DATA.threads_url;
+$("sheet-link").href = DATA.sheet_url;
+$("th-both").onclick = () => { window.open(DATA.threads_url, "_blank"); window.open(DATA.sheet_url, "_blank"); };
+
+// ── 영상 목록
+const fmt = n => n >= 1e4 ? (n / 1e4).toFixed(n >= 1e5 ? 0 : 1).replace(/\.0$/, "") + "만" : Math.round(n).toLocaleString();
+const rateText = v => v.rate > 0 ? `하루 +${fmt(v.rate)}회${v.rate_kind === "measured" ? " (실측)" : ""}` : "";
+$("groups").innerHTML = DATA.groups.map((g, gi) => `
+  <div class="group${g.hot ? " hot" : ""}">
+    <div class="group-head">
+      <h3>${esc(g.keyword)}</h3><span class="kind${g.hot ? " hot" : ""}">${esc(g.kind)}</span>
+      <span class="right">
+        ${g.hot ? "하루 평균 조회수 순 · 우선 작업" : `<a href="${esc(g.search_url)}" target="_blank" rel="noopener">유튜브에서 더 보기 →</a>`}
+        ${g.videos.length ? `<button class="btn small mgr-only" data-assign-group="${gi}"></button>` : ""}
+      </span>
+    </div>
+    ${g.videos.length ? `<div class="grid">${g.videos.map((v, i) => `
+      <div class="vid" data-vid="yt:${esc(v.id)}">
+        <a class="thumb" href="https://www.youtube.com/watch?v=${esc(v.id)}" target="_blank" rel="noopener">
+          <img loading="lazy" src="https://i.ytimg.com/vi/${esc(v.id)}/mqdefault.jpg" alt="">
+          ${g.hot ? `<span class="rank">${i + 1}</span>` : ""}
+          ${v.length ? `<span class="len">${esc(v.length)}</span>` : ""}
+        </a>
+        <div class="body">
+          <a class="title" href="https://www.youtube.com/watch?v=${esc(v.id)}" target="_blank" rel="noopener">${esc(v.title)}</a>
+          <div class="sub">${esc(v.channel)}${g.hot && v.keyword ? ` · #${esc(v.keyword)}` : ""}</div>
+          ${rateText(v) ? `<div class="rate">${esc(rateText(v))}</div>` : ""}
+          <div class="sub">${esc([v.views, v.published].filter(Boolean).join(" · "))}</div>
+          <div class="foot">
+            <label class="check"><input type="checkbox" data-key="yt:${esc(v.id)}">댓글 완료</label>
+            <button class="who" data-who="yt:${esc(v.id)}"></button>
+          </div>
+        </div>
+      </div>`).join("")}</div>` : `<div class="empty">새 영상이 없어요. "유튜브에서 더 보기"를 눌러 직접 찾아보세요.</div>`}
+  </div>`).join("");
+
+const boxes = [...document.querySelectorAll("input[data-key]")];
+let filter = null, filterRole;  // 역할이 정해지면 그 역할의 기본 필터로
+
+// ── 서버 통신 (Apps Script). text/plain 으로 보내 CORS 사전요청을 피한다
+function applyServer(res) {
+  if (!res || res.error) { showNotice("서버 오류: " + (res?.error || "응답 없음")); return; }
+  role = res.role; items = res.items || {}; feedback = res.feedback || []; logRows = res.log || [];
+  render();
+}
+function post(body) {
+  if (!ONLINE) { store.set("local-" + DATA.date, JSON.stringify(items)); return; }
+  fetch(DATA.api_url, {method: "POST", body: JSON.stringify({k: ACCESS, date: DATA.date, summary: summaries(), ...body})})
+    .then(r => r.json()).then(applyServer).catch(() => showNotice("저장에 실패했어요. 인터넷 연결을 확인하고 새로고침해 주세요."));
+}
+
+function setDone(key, done) {
+  items[key] = {...(items[key] || {assignee: "manager"}), done, doneBy: role};
+  render();
+  post({action: "check", item: ITEM[key], done});
+}
+function setAssignee(keys, who) {
+  keys.forEach(k => { items[k] = {...(items[k] || {}), assignee: who}; });
+  render();
+  post({action: "assign", items: keys.map(k => ITEM[k]), assignee: who});
+}
+
+boxes.forEach(b => b.onchange = () => setDone(b.dataset.key, b.checked));
+document.querySelectorAll("[data-who]").forEach(b => b.onclick = () => {
+  if (role !== "manager" || !ONLINE) return;
+  const k = b.dataset.who;
+  setAssignee([k], assignee(k) === "member" ? "manager" : "member");
+});
+document.querySelectorAll("[data-assign-group]").forEach(b => b.onclick = () => {
+  const keys = DATA.groups[+b.dataset.assignGroup].videos.map(v => "yt:" + v.id);
+  setAssignee(keys, keys.every(k => assignee(k) === "member") ? "manager" : "member");
+});
+
+// ── 수행율: 유튜브 50 / 지식인 25 / 스레드 25, 그 사람에게 할당된 분류만으로 다시 비율 계산
+const WEIGHT = {yt: 50, kin: 25, threads: 25};
+function personStats(who) {
+  const mine = ITEMS.filter(i => assignee(i.key) === who);
+  let w = 0, score = 0;
+  for (const cat of Object.keys(WEIGHT)) {
+    const list = mine.filter(i => i.cat === cat);
+    if (!list.length) continue;
+    w += WEIGHT[cat];
+    score += WEIGHT[cat] * list.filter(i => isDone(i.key)).length / list.length;
+  }
+  return {person: who, assigned: mine.length, done: mine.filter(i => isDone(i.key)).length, pct: w ? Math.round(score / w * 100) : null};
+}
+const summaries = () => ["manager", "member"].map(personStats).filter(s => s.assigned > 0);
+
+function showNotice(msg) {
+  $("notices").insertAdjacentHTML("afterbegin", `<div class="notice">${esc(msg)}</div>`);
+}
+
+function render() {
+  const mgr = role === "manager";
+  document.body.classList.toggle("manager-view", mgr && ONLINE);
+  $("role").textContent = !ONLINE ? "개인 모드" : !role ? "불러오는 중" : mgr ? `${NAMES.manager} 보기` : `${NAMES.member} 보기`;
+
+  // 필터 버튼
+  const opts = !ONLINE ? [["all", "전체"], ["todo", "남은 것"], ["done", "완료"]]
+    : mgr ? [["all", "전체"], ["member", `${NAMES.member} 할당`], ["todo", "남은 것"], ["done", "완료"]]
+    : [["mine", "내 과업"], ["all", "전체"], ["done", "완료"]];
+  if (filterRole !== role || !opts.some(o => o[0] === filter)) { filter = opts[0][0]; filterRole = role; }
+  $("filters").innerHTML = opts.map(([f, t]) => `<button class="btn${f === filter ? " on" : ""}" data-f="${f}">${t}</button>`).join("");
+  document.querySelectorAll("[data-f]").forEach(b => b.onclick = () => { filter = b.dataset.f; render(); });
+
+  // 담당 표시 + 체크 가능 여부 (팀원은 본인 항목만)
+  document.querySelectorAll("[data-who]").forEach(b => {
+    const a = assignee(b.dataset.who);
+    b.textContent = NAMES[a];
+    b.style.display = ONLINE ? "" : "none";
+    b.classList.toggle("member", a === "member");
+    b.title = mgr ? "눌러서 담당 바꾸기" : "";
+  });
+  boxes.forEach(b => {
+    b.checked = isDone(b.dataset.key);
+    b.disabled = ONLINE && (!role || (!mgr && assignee(b.dataset.key) !== "member"));
+  });
+  document.querySelectorAll(".mgr-only").forEach(b => b.style.display = mgr && ONLINE ? "" : "none");
+  document.querySelectorAll("[data-assign-group]").forEach(b => {
+    const keys = DATA.groups[+b.dataset.assignGroup].videos.map(v => "yt:" + v.id);
+    b.textContent = keys.every(k => assignee(k) === "member") ? `전체 → ${NAMES.manager}` : `전체 → ${NAMES.member}`;
+  });
+
+  // 카드 표시/필터
+  document.querySelectorAll(".vid").forEach(el => {
+    const k = el.dataset.vid, done = isDone(k), a = assignee(k);
+    el.classList.toggle("done", done);
+    el.classList.toggle("mine-member", ONLINE && a === "member");
+    const show = filter === "all" || (filter === "done" && done) || (filter === "todo" && !done)
+      || ((filter === "member" || filter === "mine") && a === "member");
+    el.style.display = show ? "" : "none";
+  });
+  document.querySelectorAll(".group").forEach(g => {
+    const cards = [...g.querySelectorAll(".vid")];
+    g.style.display = cards.length && cards.every(c => c.style.display === "none") ? "none" : "";
+  });
+
+  // 상단 카운트 / 진행률
+  const me = ONLINE && !mgr ? "member" : null;
+  const ytMine = ITEMS.filter(i => i.cat === "yt" && (!me || assignee(i.key) === me));
+  $("yt-count").textContent = `${ytMine.filter(i => isDone(i.key)).length} / ${ytMine.length}`;
+  $("yt-meta").textContent = me ? `${NAMES.member}님에게 할당된 영상` : "아래 영상에 들어가서 댓글 달고 체크하기";
+  $("t-yt").classList.toggle("complete", ytMine.length > 0 && ytMine.every(i => isDone(i.key)));
+  $("t-kin").classList.toggle("complete", isDone("kin"));
+  $("t-th").classList.toggle("complete", isDone("threads"));
+
+  const people = !ONLINE ? ["manager"] : mgr ? ["manager", "member"] : ["member"];
+  $("progress").innerHTML = people.map(p => {
+    const s = personStats(p);
+    const label = !ONLINE ? "오늘 진행률" : `${NAMES[p]} 수행율 (${s.done}/${s.assigned})`;
+    return `<div class="progress"><div class="label"><span>${esc(label)}</span><span>${s.pct == null ? "-" : s.pct + "%"}</span></div>
+      <div class="bar${p === "member" ? " member" : ""}"><i style="width:${s.pct || 0}%"></i></div></div>`;
+  }).join("");
+
+  renderNotices();
+  renderLog();
+}
+
+function renderNotices() {
+  $("notices").innerHTML = "";
+  if (!ONLINE) {
+    if (DATA.api_url) showNotice("접근 링크(#k=...)로 열어야 할당 · 기록 기능을 쓸 수 있어요.");
+    return;
+  }
+  if (role === "member") {
+    const last = feedback[feedback.length - 1];
+    if (last) $("notices").innerHTML = `<div class="notice fb"><span class="when">${dayLabel(last.date)} ${esc(NAMES.manager)} 피드백</span>${esc(last.text)}</div>`;
+    if (!ITEMS.some(i => assignee(i.key) === "member"))
+      $("notices").insertAdjacentHTML("beforeend", `<div class="notice">오늘은 아직 할당된 과업이 없어요.</div>`);
+  }
+}
+
+function renderLog() {
+  const el = $("log-body");
+  if (!ONLINE) { el.className = "empty"; el.textContent = "기록은 접근 링크로 열었을 때 구글 시트에 저장돼요."; return; }
+  if (!role) return;
+  const mgr = role === "manager";
+
+  // 피드백 작성 (관리자만)
+  if (mgr && !$("fb-text")) {
+    $("fb-area").innerHTML = `<div class="fb-form"><textarea id="fb-text" placeholder="${esc(NAMES.member)}님에게 오늘 수행에 대한 짧은 피드백"></textarea>
+      <button class="btn primary" id="fb-send">보내기</button></div>`;
+    $("fb-send").onclick = () => {
+      const text = $("fb-text").value.trim();
+      if (!text) return;
+      feedback.push({date: DATA.date, to: "member", text});
+      $("fb-text").value = "";
+      render();
+      post({action: "feedback", to: "member", text});
+    };
+  }
+
+  // 날짜별로 묶기 (오늘은 화면 상태 기준)
+  const byDay = {};
+  logRows.forEach(r => { (byDay[r.date] ||= {})[r.person] = r; });
+  byDay[DATA.date] = Object.fromEntries(summaries().map(s => [s.person, s]));
+  const fbByDay = {};
+  feedback.forEach(f => (fbByDay[f.date] ||= []).push(f));
+  Object.keys(fbByDay).forEach(k => byDay[k] ||= {});
+  const days = Object.keys(byDay).sort().reverse().slice(0, 30);
+
+  const people = mgr ? ["manager", "member"] : ["member"];
+  const avg = (p, n) => {
+    const v = days.slice(0, n).map(k => byDay[k][p]?.pct).filter(x => typeof x === "number");
+    return v.length ? Math.round(v.reduce((a, b) => a + b, 0) / v.length) + "%" : "-";
+  };
+  const cell = (p, r) => r && r.pct != null && r.pct !== ""
+    ? `<span class="minibar${p === "member" ? " member" : ""}"><i style="width:${r.pct}%"></i></span>${r.pct}% <span class="sub">(${r.done}/${r.assigned})</span>`
+    : `<span class="sub">할당 없음</span>`;
+
+  el.className = "";
+  el.innerHTML = `
+    <div class="stats">${people.map(p => `
+      <div class="stat"><b>${avg(p, 7)}</b><span>${esc(NAMES[p])} 최근 7일 평균</span></div>
+      <div class="stat"><b>${avg(p, 30)}</b><span>${esc(NAMES[p])} 최근 30일 평균</span></div>`).join("")}
+    </div>
+    <div class="tablewrap"><table class="logtable">
+      <tr><th>날짜</th>${people.map(p => `<th>${esc(NAMES[p])}</th>`).join("")}<th>${esc(NAMES.member)} 피드백</th></tr>
+      ${days.map(k => `<tr>
+        <td>${dayLabel(k)}${k === DATA.date ? " · 오늘" : ""}</td>
+        ${people.map(p => `<td>${cell(p, byDay[k][p])}</td>`).join("")}
+        <td class="fbcell">${(fbByDay[k] || []).map(f => `<div>${esc(f.text)}</div>`).join("") || `<span class="sub">—</span>`}</td>
+      </tr>`).join("")}
+    </table></div>`;
+}
+
+// ── 시작
+if (ONLINE) {
+  render();
+  fetch(`${DATA.api_url}?k=${encodeURIComponent(ACCESS)}&date=${DATA.date}`)
+    .then(r => r.json()).then(applyServer)
+    .catch(() => showNotice("기록 서버에 연결하지 못했어요. 새로고침해 주세요."));
+} else {
+  try { items = JSON.parse(store.get("local-" + DATA.date) || "{}"); } catch (e) {}
+  render();
+}
+</script>
+</body>
+</html>

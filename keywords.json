@@ -1,0 +1,39 @@
+{
+  "videos_per_keyword": 4,
+  "sort": "month",
+  "trending_count": 8,
+  "trending_min_views_per_day": 500,
+  "trending_topic_words": [
+    "허벅지",
+    "벅지",
+    "하체",
+    "다리",
+    "승마살",
+    "셀룰라이트",
+    "붓기",
+    "부종",
+    "골반"
+  ],
+  "search_keywords": [
+    "허벅지 살 빼는 법",
+    "허벅지 안쪽살",
+    "승마살 빼기",
+    "하체비만 탈출",
+    "허벅지 셀룰라이트"
+  ],
+  "content_keywords": [
+    "하체 스트레칭 루틴",
+    "다리 붓기 빼는 법",
+    "다이어트 브이로그",
+    "필라테스 하체 운동"
+  ],
+  "naver_kin_url": "https://kin.naver.com/qna/questionList.naver",
+  "naver_kin_query": "허벅지",
+  "threads_url": "https://www.threads.com/",
+  "sheet_url": "https://docs.google.com/spreadsheets/d/1k3j848rN5Tb737rwuTiPuFJglY8zyUHfJindFsjLf1A/edit?gid=1847305143#gid=1847305143",
+  "members": {
+    "manager": "팀장",
+    "member": "규태"
+  },
+  "api_url": ""
+}

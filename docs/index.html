@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>오늘의 마케팅 과업</title>
+<style>
+:root{
+  --bg:#f6f5f2; --card:#ffffff; --ink:#1d1d1f; --muted:#6b6b70; --line:#e4e2dc;
+  --accent:#2f6fed; --member:#8a4dd8; --yt:#e5322d; --kin:#03a94f; --th:#111111; --chip:#f0eee9;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141416; --card:#1e1e21; --ink:#ececef; --muted:#9c9ca3; --line:#2e2e33;
+    --accent:#6c9bff; --member:#b48cff; --yt:#ff5a55; --kin:#2fd27a; --th:#f2f2f2; --chip:#27272b;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard",sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 16px 60px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:20px}
+h1{margin:0;font-size:26px;letter-spacing:-.02em}
+.date{color:var(--muted);font-size:14px;margin-top:2px}
+.role{display:inline-block;margin-left:8px;font-size:12px;padding:2px 9px;border-radius:99px;background:var(--chip);color:var(--muted);vertical-align:middle}
+.progress-wrap{display:flex;flex-direction:column;gap:8px;min-width:260px;flex:0 1 340px}
+.progress .label{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:4px}
+.bar{height:10px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+.bar.member i{background:var(--member)}
+.notice{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:14px}
+.notice.fb{border-left-color:var(--member)}
+.notice .when{color:var(--muted);font-size:12px;margin-right:6px}
+
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.task{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.task h2{margin:0;font-size:16px;display:flex;align-items:center;gap:8px}
+.dot{width:10px;height:10px;border-radius:50%}
+.task .meta{color:var(--muted);font-size:13px}
+.task .count{font-size:24px;font-weight:700}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto}
+.btn{appearance:none;border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:9px;padding:7px 12px;font:inherit;font-size:13px;cursor:pointer;text-decoration:none}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.small{padding:3px 9px;font-size:12px}
+.check{display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer;user-select:none}
+.check input{width:18px;height:18px;accent-color:var(--accent)}
+.check input:disabled{cursor:not-allowed}
+.task.complete{opacity:.65}
+.who{appearance:none;border:1px solid var(--line);background:var(--chip);color:var(--muted);border-radius:99px;padding:1px 9px;font:inherit;font-size:11.5px;cursor:default}
+.who.member{background:var(--member);border-color:var(--member);color:#fff}
+.manager-view .who{cursor:pointer}
+.manager-view .who:hover{border-color:var(--member)}
+
+section.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:24px}
+section.box:first-of-type{margin-top:0}
+.sec-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}
+.sec-head h2{margin:0;font-size:18px}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.filters .btn.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.group{margin-top:18px}
+.group-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;margin-bottom:10px}
+.group-head h3{margin:0;font-size:15px}
+.kind{font-size:11px;padding:2px 8px;border-radius:99px;background:var(--chip);color:var(--muted)}
+.group-head .right{margin-left:auto;display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted)}
+.group-head .right a{color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.vid{border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;background:var(--card)}
+.vid.mine-member{border-color:var(--member)}
+.vid a.thumb{position:relative;display:block;aspect-ratio:16/9;background:var(--chip)}
+.vid img{width:100%;height:100%;object-fit:cover;display:block}
+.vid .len{position:absolute;right:6px;bottom:6px;background:rgba(0,0,0,.75);color:#fff;font-size:11px;padding:1px 5px;border-radius:4px}
+.vid .body{padding:10px;display:flex;flex-direction:column;gap:4px;flex:1}
+.vid .title{font-size:13.5px;font-weight:600;color:var(--ink);text-decoration:none;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.vid .sub{font-size:12px;color:var(--muted)}
+.vid .foot{margin-top:auto;padding-top:6px;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.vid .check{font-size:13px}
+.vid.done{opacity:.45}
+.vid.done .title{text-decoration:line-through}
+.group.hot{background:color-mix(in srgb,var(--yt) 7%,transparent);border:1px solid color-mix(in srgb,var(--yt) 35%,transparent);border-radius:12px;padding:14px;margin-top:14px}
+.kind.hot{background:var(--yt);color:#fff}
+.rate{display:inline-block;font-size:11.5px;font-weight:700;color:var(--yt)}
+.rank{position:absolute;left:6px;top:6px;background:var(--yt);color:#fff;font-size:12px;font-weight:700;padding:1px 7px;border-radius:6px}
+.empty{color:var(--muted);font-size:13px}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0 16px}
+.stat{background:var(--chip);border-radius:10px;padding:10px 12px}
+.stat b{display:block;font-size:22px}
+.stat span{font-size:12px;color:var(--muted)}
+.fb-form{display:flex;gap:8px;margin:12px 0 4px}
+.fb-form textarea{flex:1;min-height:60px;resize:vertical;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--bg);color:var(--ink);font:inherit;font-size:14px}
+.tablewrap{overflow-x:auto}
+.logtable{width:100%;border-collapse:collapse;font-size:13.5px}
+.logtable th,.logtable td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:center;vertical-align:top}
+.logtable th{color:var(--muted);font-weight:500;font-size:12px;white-space:nowrap}
+.logtable td:first-child,.logtable th:first-child{text-align:left;white-space:nowrap}
+.logtable td.fbcell{text-align:left;min-width:180px;font-size:13px}
+.logtable td.fbcell div+div{margin-top:4px}
+.minibar{display:inline-block;width:50px;height:6px;border-radius:9px;background:var(--line);vertical-align:middle;margin-right:6px;overflow:hidden}
+.minibar i{display:block;height:100%;background:var(--accent)}
+.minibar.member i{background:var(--member)}
+@media (max-width:900px){.summary{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:520px){.grid{grid-template-columns:1fr}h1{font-size:22px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>오늘의 마케팅 과업<span class="role" id="role"></span></h1>
+      <div class="date" id="date"></div>
+    </div>
+    <div class="progress-wrap" id="progress"></div>
+  </header>
+
+  <div id="notices"></div>
+
+  <div class="summary">
+    <div class="task" id="t-yt">
+      <h2><span class="dot" style="background:var(--yt)"></span>유튜브 댓글</h2>
+      <div class="count" id="yt-count">0 / 0</div>
+      <div class="meta" id="yt-meta">아래 영상에 들어가서 댓글 달고 체크하기</div>
+      <div class="btns"><a class="btn primary" href="#videos">영상 목록 보기 ↓</a></div>
+    </div>
+    <div class="task" id="t-kin">
+      <h2><span class="dot" style="background:var(--kin)"></span>네이버 지식인 <button class="who" data-who="kin"></button></h2>
+      <div class="meta">질문 목록 열어서 답변하기</div>
+      <label class="check"><input type="checkbox" data-key="kin">답변 작업 완료</label>
+      <div class="btns">
+        <a class="btn primary" id="kin-link" target="_blank" rel="noopener">지식인 열기</a>
+        <a class="btn" id="kin-search" target="_blank" rel="noopener">"<span id="kin-q"></span>" 최신순</a>
+      </div>
+    </div>
+    <div class="task" id="t-th">
+      <h2><span class="dot" style="background:var(--th)"></span>스레드 <button class="who" data-who="threads"></button></h2>
+      <div class="meta">스레드 + 콘텐츠 시트 두 창 열기</div>
+      <label class="check"><input type="checkbox" data-key="threads">게시 완료</label>
+      <div class="btns">
+        <button class="btn primary" id="th-both">두 창 모두 열기</button>
+        <a class="btn" id="th-link" target="_blank" rel="noopener">스레드</a>
+        <a class="btn" id="sheet-link" target="_blank" rel="noopener">시트</a>
+      </div>
+    </div>
+  </div>
+
+  <section class="box" id="videos">
+    <div class="sec-head">
+      <h2>유튜브 댓글 대상 영상</h2>
+      <div class="filters" id="filters"></div>
+    </div>
+    <div id="groups"></div>
+  </section>
+
+  <section class="box" id="log">
+    <div class="sec-head"><h2>업무 수행 기록</h2></div>
+    <div id="fb-area"></div>
+    <div id="log-body" class="empty">기록을 불러오는 중…</div>
+  </section>
+</div>
+
+<script>
+const DATA = {"date": "2026-10-23", "groups": [{"kind": "급상승", "keyword": "🔥 조회수 급상승 영상", "videos": [{"id": "b7DdnYsCZOo", "title": "다이어트 없이 라인 관리 하는 법🧑🏻‍🩰｜종아리 알 빼기｜붓기 삭제｜거북목 교정｜베개 유목민 정착템", "channel": "빵별", "published": "2주 전", "views": "조회수 385,002회", "length": "14:34", "view_count": 385002, "age_hours": 336, "keyword": "다리 붓기 빼는 법", "rate": 27500.14285714286, "rate_kind": "average"}, {"id": "bfolP_ZRv_I", "title": "하체비만이라면 걷는 자세부터 확인하세요｜골반 전방경사·빽니 해결법｜엉덩이 힘으로 걷는 방법", "channel": "하비리나_하체비만 다이어트", "published": "7일 전", "views": "조회수 170,898회", "length": "5:59", "view_count": 170898, "age_hours": 168, "keyword": "하체비만 탈출", "rate": 24414.0, "rate_kind": "average"}, {"id": "Qz0ZnS94mvw", "title": "🔥똥배, 허벅지 돌려깎기🔥 5분만에 붓기 싹 빼는 홈트 다이어트 루틴ㅣ태운자로 EP.4", "channel": "조회련: 조혜련", "published": "4주 전", "views": "조회수 631,553회", "length": "5:56", "view_count": 631553, "age_hours": 672, "keyword": "허벅지 살 빼는 법", "rate": 22555.464285714286, "rate_kind": "average"}, {"id": "FgFa7yNt0rs", "title": "굶어서 체중을 줄이면 뱃살보다 허벅지 근육이 먼저 줄어들 수 있고, 이후 다시 살이 찌면서 배는 더 나오고 다리는 가늘어질 수도 있습니다.| 박현아 교수 [EP.248]", "channel": "김재원TV", "published": "2주 전", "views": "조회수 110,843회", "length": "26:43", "view_count": 110843, "age_hours": 336, "keyword": "허벅지 살 빼는 법", "rate": 7917.357142857143, "rate_kind": "average"}, {"id": "TyGiYmrgamA", "title": "하체 뻣뻣하다면 이것만 하세요🔥 폼롤러 하나로 싹 풀립니다", "channel": "SKK 스트레칭&발레", "published": "11일 전", "views": "조회수 26,067회", "length": "3:40", "view_count": 26067, "age_hours": 264, "keyword": "하체 스트레칭 루틴", "rate": 2369.7272727272725, "rate_kind": "average"}, {"id": "-D0IuCkADz4", "title": "47살 엄마 지친 몸을 위한 누워서 하는 하체 운동", "channel": "명랑한쭈", "published": "2주 전", "views": "조회수 30,008회", "length": "17:42", "view_count": 30008, "age_hours": 336, "keyword": "필라테스 하체 운동", "rate": 2143.4285714285716, "rate_kind": "average"}, {"id": "5dkJ6j6MtC8", "title": "6일 중 3일차 | 허벅지 뒤쪽의 셀룰라이트가 고민인가요? 카펫 위에서 15분만 투자해 보세요", "channel": "Workout 4D", "published": "10일 전", "views": "조회수 20,326회", "length": "15:55", "view_count": 20326, "age_hours": 240, "keyword": "허벅지 셀룰라이트", "rate": 2032.6, "rate_kind": "average"}, {"id": "RFltmNNrsmE", "title": "하체비만 탈출 운동은 ‘이것’인 이유｜요가·필라테스·발레·헬스 직접 비교｜ 하체살·체지방 빼는 운동", "channel": "하비리나_하체비만 다이어트", "published": "2주 전", "views": "조회수 25,737회", "length": "5:25", "view_count": 25737, "age_hours": 336, "keyword": "허벅지 살 빼는 법", "rate": 1838.3571428571431, "rate_kind": "average"}], "hot": true}, {"kind": "타겟 검색 키워드", "keyword": "허벅지 살 빼는 법", "videos": [{"id": "ptY-k37UXK4", "title": "와이프한테 칭찬받은 내돈내산 살림템 공개", "channel": "에픽하이", "published": "16시간 전", "views": "조회수 375,066회", "length": "34:04", "view_count": 375066, "age_hours": 16, "keyword": "허벅지 살 빼는 법", "rate": 562599.0, "rate_kind": "average"}, {"id": "DRpFea3ctv0", "title": "허리 펴고 앉는데 왜 아플까? 실제 환자 케이스로 보여드립니다", "channel": "한의사트레이너", "published": "3일 전", "views": "조회수 258,753회", "length": "58:28", "view_count": 258753, "age_hours": 72, "keyword": "허벅지 살 빼는 법", "rate": 86251.0, "rate_kind": "average"}, {"id": "GnKgTkUv6x8", "title": "배가 나오고 갈비뼈가 벌어져서 몸통이 자꾸 커진다면? 나이먹어서 그런게 아니에요 | #장요근 #갈비뼈 #뱃살", "channel": "바른몸사용법  |  자세교정", "published": "8일 전", "views": "조회수 582,078회", "length": "7:14", "view_count": 582078, "age_hours": 192, "keyword": "허벅지 살 빼는 법", "rate": 72759.75, "rate_kind": "average"}, {"id": "JcKY0wW5eFc", "title": "혈압약, 고지혈증, 당뇨약 등 평생 먹어야 하는 약들이 우리 몸의 필수 영양소를 고갈시킬 수 있다는 사실을 알고 계셨나요?  | 박현아 교수 몰아보기", "channel": "김재원TV", "published": "3일 전", "views": "조회수 59,981회", "length": "49:15", "view_count": 59981, "age_hours": 72, "keyword": "허벅지 살 빼는 법", "rate": 19993.666666666668, "rate_kind": "average"}], "search_url": "https://www.youtube.com/results?search_query=%ED%97%88%EB%B2%85%EC%A7%80+%EC%82%B4+%EB%B9%BC%EB%8A%94+%EB%B2%95"}, {"kind": "타겟 검색 키워드", "keyword": "허벅지 안쪽살", "videos": [{"id": "8lA4FFearTM", "title": "이민정이 알려주는 나이대별 추천 관리법 *요즘 여배우 사이에서 난리난 시술", "channel": "이민정 MJ", "published": "2일 전", "views": "조회수 177,742회", "length": "19:48", "view_count": 177742, "age_hours": 48, "keyword": "허벅지 안쪽살", "rate": 88871.0, "rate_kind": "average"}, {"id": "OkRSW7FxTqA", "title": "움직이긴 귀찮고.. 살은 빼고싶고… ←모여!", "channel": "이지은 다이어트 Jiny diet", "published": "3주 전", "views": "조회수 85,341회", "length": "12:12", "view_count": 85341, "age_hours": 504, "keyword": "허벅지 안쪽살", "rate": 4063.857142857143, "rate_kind": "average"}, {"id": "y5B9iuahuaU", "title": "여기를 자극하면 안빠지던 살이 빠집니다.살이 잘빠지는 체질 만드는 운동.", "channel": "추언니에이징컷", "published": "2일 전", "views": "조회수 7,824회", "length": "14:41", "view_count": 7824, "age_hours": 48, "keyword": "허벅지 안쪽살", "rate": 3912.0, "rate_kind": "average"}, {"id": "tneSzDtett4", "title": "살처짐이 있다면 이 운동 3개만 해보세요 (+콜라겐, 마사지 등 팩트체크)", "channel": "제이제이살롱드핏", "published": "3주 전", "views": "조회수 56,534회", "length": "19:25", "view_count": 56534, "age_hours": 504, "keyword": "허벅지 안쪽살", "rate": 2692.095238095238, "rate_kind": "average"}], "search_url": "https://www.youtube.com/results?search_query=%ED%97%88%EB%B2%85%EC%A7%80+%EC%95%88%EC%AA%BD%EC%82%B4"}, {"kind": "타겟 검색 키워드", "keyword": "승마살 빼기", "videos": [{"id": "knSu3oGgPfc", "title": "超级精彩动漫上线📢一名纨绔子弟竟然在万人大战场中成为一名绝世神医，救死扶伤书写一段历史传奇！#动漫 #anime", "channel": "香香漫剧", "published": "8일 전", "views": "조회수 103,511회", "length": "9:13:27", "view_count": 103511, "age_hours": 192, "keyword": "승마살 빼기", "rate": 12938.875, "rate_kind": "average"}, {"id": "e-VevNjZl5I", "title": "[Multi SUB] （全集）陸謙帶出尖子班反被家長質疑，無奈離職接手差班，因材施教喚醒學生，昔日好班沒了他迅速垮掉！#最火短剧推荐 #短剧全集 #精彩大陆短剧", "channel": "逆天剧场", "published": "2일 전", "views": "조회수 4,521회", "length": "2:08:24", "view_count": 4521, "age_hours": 48, "keyword": "승마살 빼기", "rate": 2260.5, "rate_kind": "average"}, {"id": "SDRsKLMM4BI", "title": "[FULL]前世她被状元郎骗尽真心，家产险些拱手送人！今世重生她亲手斩断孽缘，转身嫁给身中剧毒的落魄皇子，谁知这病秧子竟是未来帝王！【重生嫁帝王】", "channel": "短劇天花板Feel-good drama", "published": "1일 전", "views": "조회수 1,859회", "length": "2:55:52", "view_count": 1859, "age_hours": 24, "keyword": "승마살 빼기", "rate": 1859.0, "rate_kind": "average"}, {"id": "zrOHYBwqrwQ", "title": "【FULL】🔥前世，庶妹故意騙我去假山，再引父親前來，害我名聲盡毀！重生後，她故技重施，卻不知我早已設局，當場揭穿她的真面目！", "channel": "小果漫剧", "published": "4일 전", "views": "조회수 6,432회", "length": "2:40:57", "view_count": 6432, "age_hours": 96, "keyword": "승마살 빼기", "rate": 1608.0, "rate_kind": "average"}], "search_url": "https://www.youtube.com/results?search_query=%EC%8A%B9%EB%A7%88%EC%82%B4+%EB%B9%BC%EA%B8%B0"}, {"kind": "타겟 검색 키워드", "keyword": "하체비만 탈출", "videos": [{"id": "GNlV7P2ALzE", "title": "재업)광고❌위고비❌5일만에 -3kg 감량한🔥굶지않고 살빼는 비법 알려드림🤗실전 액기스만 담은 다이어트 꿀팁", "channel": "로맨틱민서 MINSEO", "published": "13일 전", "views": "조회수 24,120회", "length": "20:58", "view_count": 24120, "age_hours": 312, "keyword": "하체비만 탈출", "rate": 1855.3846153846152, "rate_kind": "average"}, {"id": "foVjZtlvc8c", "title": "달달한 음료, 자극적인 음식, 당, 쇼핑이나 SNS 같은 강한 보상에 중독되어있는 하체 비만", "channel": "르아", "published": "2주 전", "views": "조회수 9,721회", "length": "6:15", "view_count": 9721, "age_hours": 336, "keyword": "하체비만 탈출", "rate": 694.3571428571429, "rate_kind": "average"}, {"id": "4jO7EdjXNKM", "title": "하체비만 탈출한 사람의 찐 관리법!", "channel": "일단해봄", "published": "3주 전", "views": "조회수 11,474회", "length": "8:42", "view_count": 11474, "age_hours": 504, "keyword": "하체비만 탈출", "rate": 546.3809523809524, "rate_kind": "average"}, {"id": "Ugk2mI8L-BE", "title": "매번 하비 탈출 실패하던 모태 하비의 인생을 바꿔준 그 시작의 순간", "channel": "르아", "published": "3주 전", "views": "조회수 9,332회", "length": "3:42", "view_count": 9332, "age_hours": 504, "keyword": "하체비만 탈출", "rate": 444.3809523809524, "rate_kind": "average"}], "search_url": "https://www.youtube.com/results?search_query=%ED%95%98%EC%B2%B4%EB%B9%84%EB%A7%8C+%ED%83%88%EC%B6%9C"}, {"kind": "타겟 검색 키워드", "keyword": "허벅지 셀룰라이트", "videos": [{"id": "DaPB6UbA-wA", "title": "[4K] 폴댄서는 다리가 얼만큼 찢어져요? [폴앤댄스/PoleDance]", "channel": "ONN 헬스", "published": "6일 전", "views": "조회수 897회", "length": "12:46", "view_count": 897, "age_hours": 144, "keyword": "허벅지 셀룰라이트", "rate": 149.5, "rate_kind": "average"}, {"id": "JCXtUPYNXtU", "title": "다이어트 후 급노화 온 얼굴과 쭈글쭈글한 뱃살, 피부과 의사는 '이렇게' 해결합니다", "channel": "피부의 세계 오재홍", "published": "3주 전", "views": "조회수 2,240회", "length": "13:08", "view_count": 2240, "age_hours": 504, "keyword": "허벅지 셀룰라이트", "rate": 106.66666666666667, "rate_kind": "average"}, {"id": "fE73OlIyDso", "title": "19분 다리 슬림 & 셀룰라이트 운동 – 탄탄한 허벅지 만들기 | 기구 없이 홈트", "channel": "WORKOUT NOW🏅", "published": "4주 전", "views": "조회수 783회", "length": "19:45", "view_count": 783, "age_hours": 672, "keyword": "허벅지 셀룰라이트", "rate": 27.964285714285715, "rate_kind": "average"}, {"id": "M8nT0LWIu4g", "title": "셀룰라이트 타파 바디로션에 썩어쓰는 마사지오일 레서피", "channel": "센트하우스", "published": "10일 전", "views": "조회수 179회", "length": "6:40", "view_count": 179, "age_hours": 240, "keyword": "허벅지 셀룰라이트", "rate": 17.9, "rate_kind": "average"}], "search_url": "https://www.youtube.com/results?search_query=%ED%97%88%EB%B2%85%EC%A7%80+%EC%85%80%EB%A3%B0%EB%9D%BC%EC%9D%B4%ED%8A%B8"}, {"kind": "타겟 시청 콘텐츠", "keyword": "하체 스트레칭 루틴", "videos": [{"id": "FaTQmifiLIg", "title": "성공하는 다이어트 루틴🦵따라하기 편한 하체 스트레칭🔥 - 강하나 스트레칭-", "channel": "강하나 스트레칭_stretching", "published": "7일 전", "views": "조회수 9,899회", "length": "25:59", "view_count": 9899, "age_hours": 168, "keyword": "하체 스트레칭 루틴", "rate": 1414.1428571428573, "rate_kind": "average"}, {"id": "o95SAltAKBA", "title": "스쿼트 이렇게 하면 살빠져요👍 쉽게, 단계별로 도전하기 - 강하나 스트레칭-", "channel": "강하나 스트레칭_stretching", "published": "10일 전", "views": "조회수 8,654회", "length": "13:55", "view_count": 8654, "age_hours": 240, "keyword": "하체 스트레칭 루틴", "rate": 865.3999999999999, "rate_kind": "average"}, {"id": "Bv8KYIDkmh8", "title": "앞벅지발달이 고민인 분들을 위한 스트레칭‼️ 하체운동 저를 믿고 함께하세요😌 - 강하나 스트레칭", "channel": "강하나 스트레칭_stretching", "published": "3주 전", "views": "조회수 9,261회", "length": "8:46", "view_count": 9261, "age_hours": 504, "keyword": "하체 스트레칭 루틴", "rate": 441.0, "rate_kind": "average"}, {"id": "ddzqdDCti4k", "title": "하지 스트레칭 루틴", "channel": "빵서", "published": "7일 전", "views": "조회수 732회", "length": "1:48", "view_count": 732, "age_hours": 168, "keyword": "하체 스트레칭 루틴", "rate": 104.57142857142856, "rate_kind": "average"}], "search_url": "https://www.youtube.com/results?search_query=%ED%95%98%EC%B2%B4+%EC%8A%A4%ED%8A%B8%EB%A0%88%EC%B9%AD+%EB%A3%A8%ED%8B%B4"}, {"kind": "타겟 시청 콘텐츠", "keyword": "다리 붓기 빼는 법", "videos": [{"id": "t_cwKtpiH74", "title": "\"진작 할걸...\" 퉁퉁 붓고 살 안 빠지는 몸, 하루 10분 림프 순환으로 싹 비워내는 5가지 풀코스 루틴", "channel": "해빗 홈트 | 수정쌤", "published": "3주 전", "views": "조회수 168,922회", "length": "16:42", "view_count": 168922, "age_hours": 504, "keyword": "다리 붓기 빼는 법", "rate": 8043.904761904762, "rate_kind": "average"}, {"id": "U5p4A1XmXRU", "title": "부기 뺴고 25kg 감량! 매일 퉁퉁 붓는 몸, 이 자세 하나면 끝? #라이프꿀팁 #MBCLIFE #기분좋은날 MBC21608방송", "channel": "MBClife", "published": "6일 전", "views": "조회수 22,984회", "length": "14:12", "view_count": 22984, "age_hours": 144, "keyword": "다리 붓기 빼는 법", "rate": 3830.666666666667, "rate_kind": "average"}, {"id": "Bu-UiicALAs", "title": "저녁마다 퉁퉁붓는 다리라면 밤마다 이거 하세요｜다리 붓기 괄사 마사지｜종아리 발목 셀프 마사지｜종아리날씬해지는법", "channel": "하비리나_하체비만 다이어트", "published": "4주 전", "views": "조회수 10,283회", "length": "5:47", "view_count": 10283, "age_hours": 672, "keyword": "다리 붓기 빼는 법", "rate": 367.25, "rate_kind": "average"}, {"id": "c_CEYnWms4o", "title": "압박스타킹, 허리를 아프게 한다? 다리 붓기 제대로 빼는 법 | 정파카", "channel": "정파카", "published": "13일 전", "views": "조회수 2,881회", "length": "11:14", "view_count": 2881, "age_hours": 312, "keyword": "다리 붓기 빼는 법", "rate": 221.61538461538464, "rate_kind": "average"}], "search_url": "https://www.youtube.com/results?search_query=%EB%8B%A4%EB%A6%AC+%EB%B6%93%EA%B8%B0+%EB%B9%BC%EB%8A%94+%EB%B2%95"}, {"kind": "타겟 시청 콘텐츠", "keyword": "다이어트 브이로그", "videos": [], "search_url": "https://www.youtube.com/results?search_query=%EB%8B%A4%EC%9D%B4%EC%96%B4%ED%8A%B8+%EB%B8%8C%EC%9D%B4%EB%A1%9C%EA%B7%B8"}, {"kind": "타겟 시청 콘텐츠", "keyword": "필라테스 하체 운동", "videos": [{"id": "4IcY2MN88_U", "title": "[15min] 옆엉덩이 볼륨 살리면서 뱃살 태우는 루틴", "channel": "핑크힙, 응비", "published": "15시간 전", "views": "조회수 8,174회", "length": "17:08", "view_count": 8174, "age_hours": 15, "keyword": "필라테스 하체 운동", "rate": 13078.399999999998, "rate_kind": "average"}, {"id": "h5FgK0qKY7w", "title": "따라하기 쉬운데 근육 자극은 제대로‼️ 50세 이후 집에서 하는 전신 근력운동", "channel": "슬로우 필라테스", "published": "17시간 전", "views": "조회수 2,976회", "length": "26:26", "view_count": 2976, "age_hours": 17, "keyword": "필라테스 하체 운동", "rate": 4201.411764705883, "rate_kind": "average"}, {"id": "i5rnFGyyi0c", "title": "나이 들수록 약해지는 근육‼️ 전신 근력운동으로 근감소증 예방해요", "channel": "슬로우 필라테스", "published": "9일 전", "views": "조회수 8,113회", "length": "24:26", "view_count": 8113, "age_hours": 216, "keyword": "필라테스 하체 운동", "rate": 901.4444444444443, "rate_kind": "average"}, {"id": "YzuzPHsfVH8", "title": "누워서 편하게 골반열고 하체부종빼는 스트레칭 LOWER BODY STRETCHING 15MIN", "channel": "June Pilates", "published": "5일 전", "views": "조회수 3,058회", "length": "14:43", "view_count": 3058, "age_hours": 120, "keyword": "필라테스 하체 운동", "rate": 611.6, "rate_kind": "average"}], "search_url": "https://www.youtube.com/results?search_query=%ED%95%84%EB%9D%BC%ED%85%8C%EC%8A%A4+%ED%95%98%EC%B2%B4+%EC%9A%B4%EB%8F%99"}], "kin_url": "https://kin.naver.com/qna/questionList.naver", "kin_search_url": "https://kin.naver.com/search/list.naver?query=%ED%97%88%EB%B2%85%EC%A7%80&sort=date", "kin_query": "허벅지", "threads_url": "https://www.threads.com/", "sheet_url": "https://docs.google.com/spreadsheets/d/1k3j848rN5Tb737rwuTiPuFJglY8zyUHfJindFsjLf1A/edit?gid=1847305143#gid=1847305143", "api_url": "", "members": {"manager": "팀장", "member": "규태"}};
+const NAMES = DATA.members;  // {manager: "팀장", member: "규태"}
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const wd = ["일","월","화","수","목","금","토"];
+const dayLabel = k => `${+k.slice(5,7)}/${+k.slice(8,10)} (${wd[new Date(k + "T00:00:00").getDay()]})`;
+
+// ── 접근 키: 링크의 #k=... 를 기기에 기억 (홈 화면에 추가해도 유지)
+const store = {
+  get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} },
+};
+const hashKey = new URLSearchParams(location.hash.slice(1)).get("k");
+if (hashKey) { store.set("board-key", hashKey); history.replaceState(null, "", location.pathname); }
+const ACCESS = hashKey || store.get("board-key");
+const ONLINE = !!(DATA.api_url && ACCESS);
+addEventListener("hashchange", () => location.reload());  // 다른 접근 링크를 같은 탭에 붙여넣은 경우
+
+let role = ONLINE ? null : "manager";  // 서버 응답으로 확정
+let items = {};      // 항목키 → {assignee, done, doneBy}
+let feedback = [];
+let logRows = [];
+
+// ── 오늘의 전체 항목 목록
+const ITEMS = [];
+DATA.groups.forEach(g => g.videos.forEach(v => ITEMS.push({key: "yt:" + v.id, label: v.title, cat: "yt"})));
+ITEMS.push({key: "kin", label: "네이버 지식인", cat: "kin"}, {key: "threads", label: "스레드", cat: "threads"});
+const ITEM = Object.fromEntries(ITEMS.map(i => [i.key, i]));
+const assignee = key => items[key]?.assignee || "manager";
+const isDone = key => !!items[key]?.done;
+
+// ── 기본 링크
+const d = new Date(DATA.date + "T00:00:00");
+$("date").textContent = `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 (${wd[d.getDay()]})`;
+$("kin-q").textContent = DATA.kin_query;
+$("kin-link").href = DATA.kin_url;
+$("kin-search").href = DATA.kin_search_url;
+$("th-link").href = DATA.threads_url;
+$("sheet-link").href = DATA.sheet_url;
+$("th-both").onclick = () => { window.open(DATA.threads_url, "_blank"); window.open(DATA.sheet_url, "_blank"); };
+
+// ── 영상 목록
+const fmt = n => n >= 1e4 ? (n / 1e4).toFixed(n >= 1e5 ? 0 : 1).replace(/\.0$/, "") + "만" : Math.round(n).toLocaleString();
+const rateText = v => v.rate > 0 ? `하루 +${fmt(v.rate)}회${v.rate_kind === "measured" ? " (실측)" : ""}` : "";
+$("groups").innerHTML = DATA.groups.map((g, gi) => `
+  <div class="group${g.hot ? " hot" : ""}">
+    <div class="group-head">
+      <h3>${esc(g.keyword)}</h3><span class="kind${g.hot ? " hot" : ""}">${esc(g.kind)}</span>
+      <span class="right">
+        ${g.hot ? "하루 평균 조회수 순 · 우선 작업" : `<a href="${esc(g.search_url)}" target="_blank" rel="noopener">유튜브에서 더 보기 →</a>`}
+        ${g.videos.length ? `<button class="btn small mgr-only" data-assign-group="${gi}"></button>` : ""}
+      </span>
+    </div>
+    ${g.videos.length ? `<div class="grid">${g.videos.map((v, i) => `
+      <div class="vid" data-vid="yt:${esc(v.id)}">
+        <a class="thumb" href="https://www.youtube.com/watch?v=${esc(v.id)}" target="_blank" rel="noopener">
+          <img loading="lazy" src="https://i.ytimg.com/vi/${esc(v.id)}/mqdefault.jpg" alt="">
+          ${g.hot ? `<span class="rank">${i + 1}</span>` : ""}
+          ${v.length ? `<span class="len">${esc(v.length)}</span>` : ""}
+        </a>
+        <div class="body">
+          <a class="title" href="https://www.youtube.com/watch?v=${esc(v.id)}" target="_blank" rel="noopener">${esc(v.title)}</a>
+          <div class="sub">${esc(v.channel)}${g.hot && v.keyword ? ` · #${esc(v.keyword)}` : ""}</div>
+          ${rateText(v) ? `<div class="rate">${esc(rateText(v))}</div>` : ""}
+          <div class="sub">${esc([v.views, v.published].filter(Boolean).join(" · "))}</div>
+          <div class="foot">
+            <label class="check"><input type="checkbox" data-key="yt:${esc(v.id)}">댓글 완료</label>
+            <button class="who" data-who="yt:${esc(v.id)}"></button>
+          </div>
+        </div>
+      </div>`).join("")}</div>` : `<div class="empty">새 영상이 없어요. "유튜브에서 더 보기"를 눌러 직접 찾아보세요.</div>`}
+  </div>`).join("");
+
+const boxes = [...document.querySelectorAll("input[data-key]")];
+let filter = null, filterRole;  // 역할이 정해지면 그 역할의 기본 필터로
+
+// ── 서버 통신 (Apps Script). text/plain 으로 보내 CORS 사전요청을 피한다
+function applyServer(res) {
+  if (!res || res.error) { showNotice("서버 오류: " + (res?.error || "응답 없음")); return; }
+  role = res.role; items = res.items || {}; feedback = res.feedback || []; logRows = res.log || [];
+  render();
+}
+function post(body) {
+  if (!ONLINE) { store.set("local-" + DATA.date, JSON.stringify(items)); return; }
+  fetch(DATA.api_url, {method: "POST", body: JSON.stringify({k: ACCESS, date: DATA.date, summary: summaries(), ...body})})
+    .then(r => r.json()).then(applyServer).catch(() => showNotice("저장에 실패했어요. 인터넷 연결을 확인하고 새로고침해 주세요."));
+}
+
+function setDone(key, done) {
+  items[key] = {...(items[key] || {assignee: "manager"}), done, doneBy: role};
+  render();
+  post({action: "check", item: ITEM[key], done});
+}
+function setAssignee(keys, who) {
+  keys.forEach(k => { items[k] = {...(items[k] || {}), assignee: who}; });
+  render();
+  post({action: "assign", items: keys.map(k => ITEM[k]), assignee: who});
+}
+
+boxes.forEach(b => b.onchange = () => setDone(b.dataset.key, b.checked));
+document.querySelectorAll("[data-who]").forEach(b => b.onclick = () => {
+  if (role !== "manager" || !ONLINE) return;
+  const k = b.dataset.who;
+  setAssignee([k], assignee(k) === "member" ? "manager" : "member");
+});
+document.querySelectorAll("[data-assign-group]").forEach(b => b.onclick = () => {
+  const keys = DATA.groups[+b.dataset.assignGroup].videos.map(v => "yt:" + v.id);
+  setAssignee(keys, keys.every(k => assignee(k) === "member") ? "manager" : "member");
+});
+
+// ── 수행율: 유튜브 50 / 지식인 25 / 스레드 25, 그 사람에게 할당된 분류만으로 다시 비율 계산
+const WEIGHT = {yt: 50, kin: 25, threads: 25};
+function personStats(who) {
+  const mine = ITEMS.filter(i => assignee(i.key) === who);
+  let w = 0, score = 0;
+  for (const cat of Object.keys(WEIGHT)) {
+    const list = mine.filter(i => i.cat === cat);
+    if (!list.length) continue;
+    w += WEIGHT[cat];
+    score += WEIGHT[cat] * list.filter(i => isDone(i.key)).length / list.length;
+  }
+  return {person: who, assigned: mine.length, done: mine.filter(i => isDone(i.key)).length, pct: w ? Math.round(score / w * 100) : null};
+}
+const summaries = () => ["manager", "member"].map(personStats).filter(s => s.assigned > 0);
+
+function showNotice(msg) {
+  $("notices").insertAdjacentHTML("afterbegin", `<div class="notice">${esc(msg)}</div>`);
+}
+
+function render() {
+  const mgr = role === "manager";
+  document.body.classList.toggle("manager-view", mgr && ONLINE);
+  $("role").textContent = !ONLINE ? "개인 모드" : !role ? "불러오는 중" : mgr ? `${NAMES.manager} 보기` : `${NAMES.member} 보기`;
+
+  // 필터 버튼
+  const opts = !ONLINE ? [["all", "전체"], ["todo", "남은 것"], ["done", "완료"]]
+    : mgr ? [["all", "전체"], ["member", `${NAMES.member} 할당`], ["todo", "남은 것"], ["done", "완료"]]
+    : [["mine", "내 과업"], ["all", "전체"], ["done", "완료"]];
+  if (filterRole !== role || !opts.some(o => o[0] === filter)) { filter = opts[0][0]; filterRole = role; }
+  $("filters").innerHTML = opts.map(([f, t]) => `<button class="btn${f === filter ? " on" : ""}" data-f="${f}">${t}</button>`).join("");
+  document.querySelectorAll("[data-f]").forEach(b => b.onclick = () => { filter = b.dataset.f; render(); });
+
+  // 담당 표시 + 체크 가능 여부 (팀원은 본인 항목만)
+  document.querySelectorAll("[data-who]").forEach(b => {
+    const a = assignee(b.dataset.who);
+    b.textContent = NAMES[a];
+    b.style.display = ONLINE ? "" : "none";
+    b.classList.toggle("member", a === "member");
+    b.title = mgr ? "눌러서 담당 바꾸기" : "";
+  });
+  boxes.forEach(b => {
+    b.checked = isDone(b.dataset.key);
+    b.disabled = ONLINE && (!role || (!mgr && assignee(b.dataset.key) !== "member"));
+  });
+  document.querySelectorAll(".mgr-only").forEach(b => b.style.display = mgr && ONLINE ? "" : "none");
+  document.querySelectorAll("[data-assign-group]").forEach(b => {
+    const keys = DATA.groups[+b.dataset.assignGroup].videos.map(v => "yt:" + v.id);
+    b.textContent = keys.every(k => assignee(k) === "member") ? `전체 → ${NAMES.manager}` : `전체 → ${NAMES.member}`;
+  });
+
+  // 카드 표시/필터
+  document.querySelectorAll(".vid").forEach(el => {
+    const k = el.dataset.vid, done = isDone(k), a = assignee(k);
+    el.classList.toggle("done", done);
+    el.classList.toggle("mine-member", ONLINE && a === "member");
+    const show = filter === "all" || (filter === "done" && done) || (filter === "todo" && !done)
+      || ((filter === "member" || filter === "mine") && a === "member");
+    el.style.display = show ? "" : "none";
+  });
+  document.querySelectorAll(".group").forEach(g => {
+    const cards = [...g.querySelectorAll(".vid")];
+    g.style.display = cards.length && cards.every(c => c.style.display === "none") ? "none" : "";
+  });
+
+  // 상단 카운트 / 진행률
+  const me = ONLINE && !mgr ? "member" : null;
+  const ytMine = ITEMS.filter(i => i.cat === "yt" && (!me || assignee(i.key) === me));
+  $("yt-count").textContent = `${ytMine.filter(i => isDone(i.key)).length} / ${ytMine.length}`;
+  $("yt-meta").textContent = me ? `${NAMES.member}님에게 할당된 영상` : "아래 영상에 들어가서 댓글 달고 체크하기";
+  $("t-yt").classList.toggle("complete", ytMine.length > 0 && ytMine.every(i => isDone(i.key)));
+  $("t-kin").classList.toggle("complete", isDone("kin"));
+  $("t-th").classList.toggle("complete", isDone("threads"));
+
+  const people = !ONLINE ? ["manager"] : mgr ? ["manager", "member"] : ["member"];
+  $("progress").innerHTML = people.map(p => {
+    const s = personStats(p);
+    const label = !ONLINE ? "오늘 진행률" : `${NAMES[p]} 수행율 (${s.done}/${s.assigned})`;
+    return `<div class="progress"><div class="label"><span>${esc(label)}</span><span>${s.pct == null ? "-" : s.pct + "%"}</span></div>
+      <div class="bar${p === "member" ? " member" : ""}"><i style="width:${s.pct || 0}%"></i></div></div>`;
+  }).join("");
+
+  renderNotices();
+  renderLog();
+}
+
+function renderNotices() {
+  $("notices").innerHTML = "";
+  if (!ONLINE) {
+    if (DATA.api_url) showNotice("접근 링크(#k=...)로 열어야 할당 · 기록 기능을 쓸 수 있어요.");
+    return;
+  }
+  if (role === "member") {
+    const last = feedback[feedback.length - 1];
+    if (last) $("notices").innerHTML = `<div class="notice fb"><span class="when">${dayLabel(last.date)} ${esc(NAMES.manager)} 피드백</span>${esc(last.text)}</div>`;
+    if (!ITEMS.some(i => assignee(i.key) === "member"))
+      $("notices").insertAdjacentHTML("beforeend", `<div class="notice">오늘은 아직 할당된 과업이 없어요.</div>`);
+  }
+}
+
+function renderLog() {
+  const el = $("log-body");
+  if (!ONLINE) { el.className = "empty"; el.textContent = "기록은 접근 링크로 열었을 때 구글 시트에 저장돼요."; return; }
+  if (!role) return;
+  const mgr = role === "manager";
+
+  // 피드백 작성 (관리자만)
+  if (mgr && !$("fb-text")) {
+    $("fb-area").innerHTML = `<div class="fb-form"><textarea id="fb-text" placeholder="${esc(NAMES.member)}님에게 오늘 수행에 대한 짧은 피드백"></textarea>
+      <button class="btn primary" id="fb-send">보내기</button></div>`;
+    $("fb-send").onclick = () => {
+      const text = $("fb-text").value.trim();
+      if (!text) return;
+      feedback.push({date: DATA.date, to: "member", text});
+      $("fb-text").value = "";
+      render();
+      post({action: "feedback", to: "member", text});
+    };
+  }
+
+  // 날짜별로 묶기 (오늘은 화면 상태 기준)
+  const byDay = {};
+  logRows.forEach(r => { (byDay[r.date] ||= {})[r.person] = r; });
+  byDay[DATA.date] = Object.fromEntries(summaries().map(s => [s.person, s]));
+  const fbByDay = {};
+  feedback.forEach(f => (fbByDay[f.date] ||= []).push(f));
+  Object.keys(fbByDay).forEach(k => byDay[k] ||= {});
+  const days = Object.keys(byDay).sort().reverse().slice(0, 30);
+
+  const people = mgr ? ["manager", "member"] : ["member"];
+  const avg = (p, n) => {
+    const v = days.slice(0, n).map(k => byDay[k][p]?.pct).filter(x => typeof x === "number");
+    return v.length ? Math.round(v.reduce((a, b) => a + b, 0) / v.length) + "%" : "-";
+  };
+  const cell = (p, r) => r && r.pct != null && r.pct !== ""
+    ? `<span class="minibar${p === "member" ? " member" : ""}"><i style="width:${r.pct}%"></i></span>${r.pct}% <span class="sub">(${r.done}/${r.assigned})</span>`
+    : `<span class="sub">할당 없음</span>`;
+
+  el.className = "";
+  el.innerHTML = `
+    <div class="stats">${people.map(p => `
+      <div class="stat"><b>${avg(p, 7)}</b><span>${esc(NAMES[p])} 최근 7일 평균</span></div>
+      <div class="stat"><b>${avg(p, 30)}</b><span>${esc(NAMES[p])} 최근 30일 평균</span></div>`).join("")}
+    </div>
+    <div class="tablewrap"><table class="logtable">
+      <tr><th>날짜</th>${people.map(p => `<th>${esc(NAMES[p])}</th>`).join("")}<th>${esc(NAMES.member)} 피드백</th></tr>
+      ${days.map(k => `<tr>
+        <td>${dayLabel(k)}${k === DATA.date ? " · 오늘" : ""}</td>
+        ${people.map(p => `<td>${cell(p, byDay[k][p])}</td>`).join("")}
+        <td class="fbcell">${(fbByDay[k] || []).map(f => `<div>${esc(f.text)}</div>`).join("") || `<span class="sub">—</span>`}</td>
+      </tr>`).join("")}
+    </table></div>`;
+}
+
+// ── 시작
+if (ONLINE) {
+  render();
+  fetch(`${DATA.api_url}?k=${encodeURIComponent(ACCESS)}&date=${DATA.date}`)
+    .then(r => r.json()).then(applyServer)
+    .catch(() => showNotice("기록 서버에 연결하지 못했어요. 새로고침해 주세요."));
+} else {
+  try { items = JSON.parse(store.get("local-" + DATA.date) || "{}"); } catch (e) {}
+  render();
+}
+</script>
+</body>
+</html>
