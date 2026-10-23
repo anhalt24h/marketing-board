@@ -6,32 +6,74 @@
 <title>오늘의 마케팅 과업</title>
 <style>
 :root{
-  --bg:#f6f5f2; --card:#ffffff; --ink:#1d1d1f; --muted:#6b6b70; --line:#e4e2dc;
-  --accent:#2f6fed; --member:#8a4dd8; --yt:#e5322d; --kin:#03a94f; --th:#111111; --chip:#f0eee9;
+  --bg:#f6f5f2; --card:#ffffff; --ink:#1d1d1f; --muted:#6b6b70; --line:#e4e2dc; --grid:#ecebe6;
+  --accent:#2a78d6; --yt:#e5322d; --kin:#03a94f; --th:#111111; --chip:#f0eee9;
+  --p-manager:#2a78d6; --p-member:#eb6834;   /* 사람별 색 (색약 검증 통과 조합) */
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#141416; --card:#1e1e21; --ink:#ececef; --muted:#9c9ca3; --line:#2e2e33;
-    --accent:#6c9bff; --member:#b48cff; --yt:#ff5a55; --kin:#2fd27a; --th:#f2f2f2; --chip:#27272b;
+    --bg:#141416; --card:#1e1e21; --ink:#ececef; --muted:#9c9ca3; --line:#2e2e33; --grid:#29292d;
+    --accent:#3987e5; --yt:#ff5a55; --kin:#2fd27a; --th:#f2f2f2; --chip:#27272b;
+    --p-manager:#3987e5; --p-member:#d95926;
   }
+}
+:root[data-theme="dark"]{
+  --bg:#141416; --card:#1e1e21; --ink:#ececef; --muted:#9c9ca3; --line:#2e2e33; --grid:#29292d;
+  --accent:#3987e5; --yt:#ff5a55; --kin:#2fd27a; --th:#f2f2f2; --chip:#27272b;
+  --p-manager:#3987e5; --p-member:#d95926;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard",sans-serif}
 .wrap{max-width:1180px;margin:0 auto;padding:28px 16px 60px}
-header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:20px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:18px}
 h1{margin:0;font-size:26px;letter-spacing:-.02em}
 .date{color:var(--muted);font-size:14px;margin-top:2px}
 .role{display:inline-block;margin-left:8px;font-size:12px;padding:2px 9px;border-radius:99px;background:var(--chip);color:var(--muted);vertical-align:middle}
-.progress-wrap{display:flex;flex-direction:column;gap:8px;min-width:260px;flex:0 1 340px}
-.progress .label{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:4px}
-.bar{height:10px;border-radius:99px;background:var(--line);overflow:hidden}
-.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
-.bar.member i{background:var(--member)}
+.live{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.live i{width:8px;height:8px;border-radius:50%;background:var(--kin)}
+.live.off i{background:var(--muted)}
 .notice{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:14px}
-.notice.fb{border-left-color:var(--member)}
+.notice.fb{border-left-color:var(--p-member)}
 .notice .when{color:var(--muted);font-size:12px;margin-right:6px}
+.pdot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:baseline}
+.pdot.manager{background:var(--p-manager)} .pdot.member{background:var(--p-member)}
 
-.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+section.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:20px}
+.sec-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.sec-head h2{margin:0;font-size:18px}
+.sec-head .hint{font-size:12px;color:var(--muted)}
+
+/* 실시간 현황 */
+.people{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.ptile{border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.ptile .top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.ptile .name{font-weight:700}
+.ptile .pct{font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1}
+.ptile .pct small{font-size:14px;font-weight:500;color:var(--muted);margin-left:4px}
+.catrow{display:grid;grid-template-columns:52px 1fr 54px;align-items:center;gap:8px;font-size:12.5px;color:var(--muted)}
+.track{height:8px;border-radius:99px;background:var(--grid);overflow:hidden}
+.track i{display:block;height:100%;border-radius:99px;transition:width .3s}
+.track.manager i{background:var(--p-manager)} .track.member i{background:var(--p-member)}
+.catrow b{color:var(--ink);font-weight:600;text-align:right}
+.worktime{font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 12px}
+.worktime b{color:var(--ink);font-weight:600}
+.chartbox{position:relative;margin-top:16px}
+.chartbox h3{margin:0 0 6px;font-size:14px}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--muted);margin-bottom:4px}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart text{font-size:11px;fill:var(--muted)}
+.chart .lbl{font-size:12px;font-weight:600;fill:var(--ink)}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12px;padding:6px 9px;border-radius:8px;white-space:nowrap;opacity:0;transition:opacity .1s;z-index:5}
+.tip.on{opacity:1}
+.timeline{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
+.timeline th,.timeline td{padding:7px 6px;border-bottom:1px solid var(--line);text-align:left}
+.timeline th{font-size:12px;color:var(--muted);font-weight:500}
+.timeline td.t{white-space:nowrap;font-variant-numeric:tabular-nums}
+.timeline td.tk{max-width:420px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.timeline-wrap{max-height:320px;overflow:auto}
+
+/* 과업 카드 */
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
 .task{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
 .task h2{margin:0;font-size:16px;display:flex;align-items:center;gap:8px}
 .dot{width:10px;height:10px;border-radius:50%}
@@ -42,19 +84,22 @@ h1{margin:0;font-size:26px;letter-spacing:-.02em}
 .btn:hover{border-color:var(--accent)}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 .btn.small{padding:3px 9px;font-size:12px}
-.check{display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer;user-select:none}
-.check input{width:18px;height:18px;accent-color:var(--accent)}
-.check input:disabled{cursor:not-allowed}
-.task.complete{opacity:.65}
-.who{appearance:none;border:1px solid var(--line);background:var(--chip);color:var(--muted);border-radius:99px;padding:1px 9px;font:inherit;font-size:11.5px;cursor:default}
-.who.member{background:var(--member);border-color:var(--member);color:#fff}
-.manager-view .who{cursor:pointer}
-.manager-view .who:hover{border-color:var(--member)}
+.btn:disabled{opacity:.5;cursor:default}
+.unit-row{display:flex;flex-direction:column;gap:6px;padding:8px 0;border-top:1px dashed var(--line)}
+.unit-row .uhead{display:flex;align-items:center;gap:8px;font-size:13px}
+.unit-row .uhead .cnt{margin-left:auto;color:var(--muted)}
+.stepper{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.stepper button{appearance:none;border:0;background:var(--chip);color:var(--ink);width:26px;height:24px;font-size:15px;cursor:pointer}
+.stepper span{min-width:34px;text-align:center;font-size:13px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{appearance:none;border:1px solid var(--line);background:var(--bg);color:var(--muted);border-radius:8px;min-width:48px;padding:5px 8px;font:inherit;font-size:12px;cursor:pointer;font-variant-numeric:tabular-nums}
+.chip:disabled{cursor:default}
+.chip.done.manager{background:var(--p-manager);border-color:var(--p-manager);color:#fff}
+.chip.done.member{background:var(--p-member);border-color:var(--p-member);color:#fff}
+.chip:not(:disabled):hover{border-color:var(--ink)}
+.empty{color:var(--muted);font-size:13px}
 
-section.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:24px}
-section.box:first-of-type{margin-top:0}
-.sec-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}
-.sec-head h2{margin:0;font-size:18px}
+/* 유튜브 */
 .filters{display:flex;gap:6px;flex-wrap:wrap}
 .filters .btn.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .group{margin-top:18px}
@@ -65,7 +110,7 @@ section.box:first-of-type{margin-top:0}
 .group-head .right a{color:var(--muted)}
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .vid{border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;background:var(--card)}
-.vid.mine-member{border-color:var(--member)}
+.vid.mine-member{border-color:var(--p-member)}
 .vid a.thumb{position:relative;display:block;aspect-ratio:16/9;background:var(--chip)}
 .vid img{width:100%;height:100%;object-fit:cover;display:block}
 .vid .len{position:absolute;right:6px;bottom:6px;background:rgba(0,0,0,.75);color:#fff;font-size:11px;padding:1px 5px;border-radius:4px}
@@ -73,33 +118,36 @@ section.box:first-of-type{margin-top:0}
 .vid .title{font-size:13.5px;font-weight:600;color:var(--ink);text-decoration:none;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .vid .sub{font-size:12px;color:var(--muted)}
 .vid .foot{margin-top:auto;padding-top:6px;display:flex;align-items:center;justify-content:space-between;gap:6px}
-.vid .check{font-size:13px}
+.check{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;user-select:none}
+.check input{width:18px;height:18px;accent-color:var(--accent)}
+.check input:disabled{cursor:not-allowed}
+.check .at{color:var(--muted);font-size:11.5px;font-variant-numeric:tabular-nums}
 .vid.done{opacity:.45}
 .vid.done .title{text-decoration:line-through}
+.who{appearance:none;border:1px solid var(--line);background:var(--chip);color:var(--muted);border-radius:99px;padding:1px 9px;font:inherit;font-size:11.5px;cursor:default}
+.who.member{background:var(--p-member);border-color:var(--p-member);color:#fff}
+.manager-view .who{cursor:pointer}
 .group.hot{background:color-mix(in srgb,var(--yt) 7%,transparent);border:1px solid color-mix(in srgb,var(--yt) 35%,transparent);border-radius:12px;padding:14px;margin-top:14px}
 .kind.hot{background:var(--yt);color:#fff}
 .rate{display:inline-block;font-size:11.5px;font-weight:700;color:var(--yt)}
 .rank{position:absolute;left:6px;top:6px;background:var(--yt);color:#fff;font-size:12px;font-weight:700;padding:1px 7px;border-radius:6px}
-.empty{color:var(--muted);font-size:13px}
 
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0 16px}
+/* 기록 */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:4px 0 14px}
 .stat{background:var(--chip);border-radius:10px;padding:10px 12px}
 .stat b{display:block;font-size:22px}
 .stat span{font-size:12px;color:var(--muted)}
-.fb-form{display:flex;gap:8px;margin:12px 0 4px}
+.fb-form{display:flex;gap:8px;margin:0 0 14px}
 .fb-form textarea{flex:1;min-height:60px;resize:vertical;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--bg);color:var(--ink);font:inherit;font-size:14px}
-.tablewrap{overflow-x:auto}
-.logtable{width:100%;border-collapse:collapse;font-size:13.5px}
+.tablewrap{overflow-x:auto;margin-top:14px}
+.logtable{width:100%;border-collapse:collapse;font-size:13px}
 .logtable th,.logtable td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:center;vertical-align:top}
 .logtable th{color:var(--muted);font-weight:500;font-size:12px;white-space:nowrap}
 .logtable td:first-child,.logtable th:first-child{text-align:left;white-space:nowrap}
-.logtable td.fbcell{text-align:left;min-width:180px;font-size:13px}
-.logtable td.fbcell div+div{margin-top:4px}
-.minibar{display:inline-block;width:50px;height:6px;border-radius:9px;background:var(--line);vertical-align:middle;margin-right:6px;overflow:hidden}
-.minibar i{display:block;height:100%;background:var(--accent)}
-.minibar.member i{background:var(--member)}
+.logtable td.fbcell{text-align:left;min-width:180px}
+.logtable .sub{color:var(--muted);font-size:12px}
 @media (max-width:900px){.summary{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr)}}
-@media (max-width:520px){.grid{grid-template-columns:1fr}h1{font-size:22px}}
+@media (max-width:520px){.grid{grid-template-columns:1fr}h1{font-size:22px}.timeline td.tk{max-width:150px}}
 </style>
 </head>
 <body>
@@ -109,10 +157,25 @@ section.box:first-of-type{margin-top:0}
       <h1>오늘의 마케팅 과업<span class="role" id="role"></span></h1>
       <div class="date" id="date"></div>
     </div>
-    <div class="progress-wrap" id="progress"></div>
+    <div class="live off" id="live"><i></i><span>연결 전</span></div>
   </header>
 
   <div id="notices"></div>
+
+  <section class="box" id="dash">
+    <div class="sec-head"><h2>실시간 현황</h2><span class="hint">30초마다 자동 갱신 · 체크한 시각으로 소요시간 계산</span></div>
+    <div class="people" id="people"></div>
+    <div class="chartbox chart" id="cum-box">
+      <h3>오늘 누적 완료 건수</h3>
+      <div class="legend" id="cum-legend"></div>
+      <div id="cum-chart"></div>
+      <div class="tip" id="cum-tip"></div>
+    </div>
+    <div class="chartbox">
+      <h3>작업 타임라인</h3>
+      <div class="timeline-wrap"><table class="timeline" id="timeline"></table></div>
+    </div>
+  </section>
 
   <div class="summary">
     <div class="task" id="t-yt">
@@ -122,18 +185,18 @@ section.box:first-of-type{margin-top:0}
       <div class="btns"><a class="btn primary" href="#videos">영상 목록 보기 ↓</a></div>
     </div>
     <div class="task" id="t-kin">
-      <h2><span class="dot" style="background:var(--kin)"></span>네이버 지식인 <button class="who" data-who="kin"></button></h2>
-      <div class="meta">질문 목록 열어서 답변하기</div>
-      <label class="check"><input type="checkbox" data-key="kin">답변 작업 완료</label>
+      <h2><span class="dot" style="background:var(--kin)"></span>네이버 지식인</h2>
+      <div class="meta">답변 1건 끝낼 때마다 칸을 하나씩 체크</div>
+      <div id="units-kin"></div>
       <div class="btns">
         <a class="btn primary" id="kin-link" target="_blank" rel="noopener">지식인 열기</a>
         <a class="btn" id="kin-search" target="_blank" rel="noopener">"<span id="kin-q"></span>" 최신순</a>
       </div>
     </div>
     <div class="task" id="t-th">
-      <h2><span class="dot" style="background:var(--th)"></span>스레드 <button class="who" data-who="threads"></button></h2>
-      <div class="meta">스레드 + 콘텐츠 시트 두 창 열기</div>
-      <label class="check"><input type="checkbox" data-key="threads">게시 완료</label>
+      <h2><span class="dot" style="background:var(--th)"></span>스레드</h2>
+      <div class="meta">게시 1건 끝낼 때마다 칸을 하나씩 체크</div>
+      <div id="units-threads"></div>
       <div class="btns">
         <button class="btn primary" id="th-both">두 창 모두 열기</button>
         <a class="btn" id="th-link" target="_blank" rel="noopener">스레드</a>
@@ -160,10 +223,17 @@ section.box:first-of-type{margin-top:0}
 <script>
 const DATA = {"date": "2026-10-23", "groups": [{"kind": "급상승", "keyword": "🔥 조회수 급상승 영상", "videos": [{"id": "bfolP_ZRv_I", "title": "하체비만이라면 걷는 자세부터 확인하세요｜골반 전방경사·빽니 해결법｜엉덩이 힘으로 걷는 방법", "channel": "하비리나_하체비만 다이어트", "published": "7일 전", "views": "조회수 170,992회", "length": "5:59", "view_count": 170992, "age_hours": 168, "keyword": "하체비만 탈출", "rate": 24427.428571428572, "rate_kind": "average"}, {"id": "Qz0ZnS94mvw", "title": "🔥똥배, 허벅지 돌려깎기🔥 5분만에 붓기 싹 빼는 홈트 다이어트 루틴ㅣ태운자로 EP.4", "channel": "조회련: 조혜련", "published": "4주 전", "views": "조회수 631,669회", "length": "5:56", "view_count": 631669, "age_hours": 672, "keyword": "허벅지 살 빼는 법", "rate": 22559.607142857145, "rate_kind": "average"}, {"id": "FgFa7yNt0rs", "title": "굶어서 체중을 줄이면 뱃살보다 허벅지 근육이 먼저 줄어들 수 있고, 이후 다시 살이 찌면서 배는 더 나오고 다리는 가늘어질 수도 있습니다.| 박현아 교수 [EP.248]", "channel": "김재원TV", "published": "2주 전", "views": "조회수 110,846회", "length": "26:43", "view_count": 110846, "age_hours": 336, "keyword": "허벅지 살 빼는 법", "rate": 7917.571428571428, "rate_kind": "average"}, {"id": "TyGiYmrgamA", "title": "하체 뻣뻣하다면 이것만 하세요🔥 폼롤러 하나로 싹 풀립니다", "channel": "SKK 스트레칭&발레", "published": "11일 전", "views": "조회수 26,067회", "length": "3:40", "view_count": 26067, "age_hours": 264, "keyword": "하체 스트레칭 루틴", "rate": 2369.7272727272725, "rate_kind": "average"}, {"id": "-D0IuCkADz4", "title": "47살 엄마 지친 몸을 위한 누워서 하는 하체 운동", "channel": "명랑한쭈", "published": "2주 전", "views": "조회수 30,008회", "length": "17:42", "view_count": 30008, "age_hours": 336, "keyword": "필라테스 하체 운동", "rate": 2143.4285714285716, "rate_kind": "average"}, {"id": "5dkJ6j6MtC8", "title": "6일 중 3일차 | 허벅지 뒤쪽의 셀룰라이트가 고민인가요? 카펫 위에서 15분만 투자해 보세요", "channel": "Workout 4D", "published": "10일 전", "views": "조회수 20,327회", "length": "15:55", "view_count": 20327, "age_hours": 240, "keyword": "허벅지 셀룰라이트", "rate": 2032.7000000000003, "rate_kind": "average"}, {"id": "RFltmNNrsmE", "title": "하체비만 탈출 운동은 ‘이것’인 이유｜요가·필라테스·발레·헬스 직접 비교｜ 하체살·체지방 빼는 운동", "channel": "하비리나_하체비만 다이어트", "published": "2주 전", "views": "조회수 25,743회", "length": "5:25", "view_count": 25743, "age_hours": 336, "keyword": "허벅지 살 빼는 법", "rate": 1838.7857142857142, "rate_kind": "average"}, {"id": "GQMjIEjYXps", "title": "🔥 만보 걷기 그만하세요! 7분 앉아서 하는 태극권으로 뱃살과 허벅지 살 빼기 (50대 이상)", "channel": "Tati Dembowska", "published": "5일 전", "views": "조회수 7,919회", "length": "8:40", "view_count": 7919, "age_hours": 120, "keyword": "허벅지 살 빼는 법", "rate": 1583.7999999999997, "rate_kind": "average"}], "hot": true}, {"kind": "타겟 검색 키워드", "keyword": "허벅지 살 빼는 법", "videos": [{"id": "GnKgTkUv6x8", "title": "배가 나오고 갈비뼈가 벌어져서 몸통이 자꾸 커진다면? 나이먹어서 그런게 아니에요 | #장요근 #갈비뼈 #뱃살", "channel": "바른몸사용법  |  자세교정", "published": "8일 전", "views": "조회수 582,504회", "length": "7:14", "view_count": 582504, "age_hours": 192, "keyword": "허벅지 살 빼는 법", "rate": 72813.0, "rate_kind": "average"}, {"id": "JcKY0wW5eFc", "title": "혈압약, 고지혈증, 당뇨약 등 평생 먹어야 하는 약들이 우리 몸의 필수 영양소를 고갈시킬 수 있다는 사실을 알고 계셨나요?  | 박현아 교수 몰아보기", "channel": "김재원TV", "published": "3일 전", "views": "조회수 60,204회", "length": "49:15", "view_count": 60204, "age_hours": 72, "keyword": "허벅지 살 빼는 법", "rate": 20068.0, "rate_kind": "average"}, {"id": "aVxoxWfl72s", "title": "-10kg 다이어트 1등 공신! 비만 전문 의사가 알려주는 스텝퍼 운동법", "channel": "김혜윤의 누워서 살빼기", "published": "13일 전", "views": "조회수 211,813회", "length": "14:42", "view_count": 211813, "age_hours": 312, "keyword": "허벅지 살 빼는 법", "rate": 16293.307692307693, "rate_kind": "average"}, {"id": "LlEDtlUowkk", "title": "최신 연구로 밝혀진 팔뚝살 빼는 법! 지방흡입 전 제발 한번만 보세요", "channel": "핏블리 FITVELY", "published": "3주 전", "views": "조회수 163,652회", "length": "8:26", "view_count": 163652, "age_hours": 504, "keyword": "허벅지 살 빼는 법", "rate": 7792.952380952382, "rate_kind": "average"}], "search_url": "https://www.youtube.com/results?search_query=%ED%97%88%EB%B2%85%EC%A7%80+%EC%82%B4+%EB%B9%BC%EB%8A%94+%EB%B2%95"}, {"kind": "타겟 검색 키워드", "keyword": "허벅지 안쪽살", "videos": [{"id": "DRpFea3ctv0", "title": "허리 펴고 앉는데 왜 아플까? 실제 환자 케이스로 보여드립니다", "channel": "한의사트레이너", "published": "3일 전", "views": "조회수 259,874회", "length": "58:28", "view_count": 259874, "age_hours": 72, "keyword": "허벅지 안쪽살", "rate": 86624.66666666667, "rate_kind": "average"}, {"id": "OkRSW7FxTqA", "title": "움직이긴 귀찮고.. 살은 빼고싶고… ←모여!", "channel": "이지은 다이어트 Jiny diet", "published": "3주 전", "views": "조회수 85,337회", "length": "12:12", "view_count": 85337, "age_hours": 504, "keyword": "허벅지 안쪽살", "rate": 4063.666666666667, "rate_kind": "average"}, {"id": "y5B9iuahuaU", "title": "여기를 자극하면 안빠지던 살이 빠집니다.살이 잘빠지는 체질 만드는 운동.", "channel": "추언니에이징컷", "published": "2일 전", "views": "조회수 7,816회", "length": "14:41", "view_count": 7816, "age_hours": 48, "keyword": "허벅지 안쪽살", "rate": 3908.0, "rate_kind": "average"}, {"id": "tneSzDtett4", "title": "살처짐이 있다면 이 운동 3개만 해보세요 (+콜라겐, 마사지 등 팩트체크)", "channel": "제이제이살롱드핏", "published": "3주 전", "views": "조회수 56,530회", "length": "19:25", "view_count": 56530, "age_hours": 504, "keyword": "허벅지 안쪽살", "rate": 2691.904761904762, "rate_kind": "average"}], "search_url": "https://www.youtube.com/results?search_query=%ED%97%88%EB%B2%85%EC%A7%80+%EC%95%88%EC%AA%BD%EC%82%B4"}, {"kind": "타겟 검색 키워드", "keyword": "승마살 빼기", "videos": [{"id": "knSu3oGgPfc", "title": "超级精彩动漫上线📢一名纨绔子弟竟然在万人大战场中成为一名绝世神医，救死扶伤书写一段历史传奇！#动漫 #anime", "channel": "香香漫剧", "published": "8일 전", "views": "조회수 103,607회", "length": "9:13:27", "view_count": 103607, "age_hours": 192, "keyword": "승마살 빼기", "rate": 12950.875, "rate_kind": "average"}, {"id": "e-VevNjZl5I", "title": "[Multi SUB] （全集）陸謙帶出尖子班反被家長質疑，無奈離職接手差班，因材施教喚醒學生，昔日好班沒了他迅速垮掉！#最火短剧推荐 #短剧全集 #精彩大陆短剧", "channel": "逆天剧场", "published": "2일 전", "views": "조회수 4,521회", "length": "2:08:24", "view_count": 4521, "age_hours": 48, "keyword": "승마살 빼기", "rate": 2260.5, "rate_kind": "average"}, {"id": "SDRsKLMM4BI", "title": "[FULL]前世她被状元郎骗尽真心，家产险些拱手送人！今世重生她亲手斩断孽缘，转身嫁给身中剧毒的落魄皇子，谁知这病秧子竟是未来帝王！【重生嫁帝王】", "channel": "短劇天花板Feel-good drama", "published": "1일 전", "views": "조회수 1,883회", "length": "2:55:52", "view_count": 1883, "age_hours": 24, "keyword": "승마살 빼기", "rate": 1883.0, "rate_kind": "average"}, {"id": "zrOHYBwqrwQ", "title": "【FULL】🔥前世，庶妹故意騙我去假山，再引父親前來，害我名聲盡毀！重生後，她故技重施，卻不知我早已設局，當場揭穿她的真面目！", "channel": "小果漫剧", "published": "4일 전", "views": "조회수 6,437회", "length": "2:40:57", "view_count": 6437, "age_hours": 96, "keyword": "승마살 빼기", "rate": 1609.25, "rate_kind": "average"}], "search_url": "https://www.youtube.com/results?search_query=%EC%8A%B9%EB%A7%88%EC%82%B4+%EB%B9%BC%EA%B8%B0"}, {"kind": "타겟 검색 키워드", "keyword": "하체비만 탈출", "videos": [{"id": "GNlV7P2ALzE", "title": "재업)광고❌위고비❌5일만에 -3kg 감량한🔥굶지않고 살빼는 비법 알려드림🤗실전 액기스만 담은 다이어트 꿀팁", "channel": "로맨틱민서 MINSEO", "published": "13일 전", "views": "조회수 24,124회", "length": "20:58", "view_count": 24124, "age_hours": 312, "keyword": "하체비만 탈출", "rate": 1855.6923076923076, "rate_kind": "average"}, {"id": "foVjZtlvc8c", "title": "달달한 음료, 자극적인 음식, 당, 쇼핑이나 SNS 같은 강한 보상에 중독되어있는 하체 비만", "channel": "르아", "published": "2주 전", "views": "조회수 9,721회", "length": "6:15", "view_count": 9721, "age_hours": 336, "keyword": "하체비만 탈출", "rate": 694.3571428571429, "rate_kind": "average"}, {"id": "4jO7EdjXNKM", "title": "하체비만 탈출한 사람의 찐 관리법!", "channel": "일단해봄", "published": "3주 전", "views": "조회수 11,475회", "length": "8:42", "view_count": 11475, "age_hours": 504, "keyword": "하체비만 탈출", "rate": 546.4285714285714, "rate_kind": "average"}, {"id": "Ugk2mI8L-BE", "title": "매번 하비 탈출 실패하던 모태 하비의 인생을 바꿔준 그 시작의 순간", "channel": "르아", "published": "3주 전", "views": "조회수 9,333회", "length": "3:42", "view_count": 9333, "age_hours": 504, "keyword": "하체비만 탈출", "rate": 444.42857142857144, "rate_kind": "average"}], "search_url": "https://www.youtube.com/results?search_query=%ED%95%98%EC%B2%B4%EB%B9%84%EB%A7%8C+%ED%83%88%EC%B6%9C"}, {"kind": "타겟 검색 키워드", "keyword": "허벅지 셀룰라이트", "videos": [{"id": "JCXtUPYNXtU", "title": "다이어트 후 급노화 온 얼굴과 쭈글쭈글한 뱃살, 피부과 의사는 '이렇게' 해결합니다", "channel": "피부의 세계 오재홍", "published": "3주 전", "views": "조회수 2,245회", "length": "13:08", "view_count": 2245, "age_hours": 504, "keyword": "허벅지 셀룰라이트", "rate": 106.9047619047619, "rate_kind": "average"}, {"id": "fE73OlIyDso", "title": "19분 다리 슬림 & 셀룰라이트 운동 – 탄탄한 허벅지 만들기 | 기구 없이 홈트", "channel": "WORKOUT NOW🏅", "published": "4주 전", "views": "조회수 783회", "length": "19:45", "view_count": 783, "age_hours": 672, "keyword": "허벅지 셀룰라이트", "rate": 27.964285714285715, "rate_kind": "average"}, {"id": "M8nT0LWIu4g", "title": "셀룰라이트 타파 바디로션에 썩어쓰는 마사지오일 레서피", "channel": "센트하우스", "published": "10일 전", "views": "조회수 179회", "length": "6:40", "view_count": 179, "age_hours": 240, "keyword": "허벅지 셀룰라이트", "rate": 17.9, "rate_kind": "average"}, {"id": "EM33w6WLWPw", "title": "제 딸 둘도 제가 수술 했어요☺️ 근육형 허벅지 지방흡입, 셀룰라이트, 흉터까지", "channel": "줄기세포 성형ㅣ더라인-Theline Plastic Surgery", "published": "2주 전", "views": "조회수 131회", "length": "4:50", "view_count": 131, "age_hours": 336, "keyword": "허벅지 셀룰라이트", "rate": 9.357142857142858, "rate_kind": "average"}], "search_url": "https://www.youtube.com/results?search_query=%ED%97%88%EB%B2%85%EC%A7%80+%EC%85%80%EB%A3%B0%EB%9D%BC%EC%9D%B4%ED%8A%B8"}, {"kind": "타겟 시청 콘텐츠", "keyword": "하체 스트레칭 루틴", "videos": [{"id": "4wUS_-xWGyY", "title": "매일 꼭 해야하는 20분 전신순환 스트레칭 Ep.29 - 피로회복, 혈액순환, 라인정리 효과", "channel": "빵느", "published": "2주 전", "views": "조회수 92,495회", "length": "18:24", "view_count": 92495, "age_hours": 336, "keyword": "하체 스트레칭 루틴", "rate": 6606.785714285714, "rate_kind": "average"}, {"id": "FaTQmifiLIg", "title": "성공하는 다이어트 루틴🦵따라하기 편한 하체 스트레칭🔥 - 강하나 스트레칭-", "channel": "강하나 스트레칭_stretching", "published": "7일 전", "views": "조회수 9,909회", "length": "25:59", "view_count": 9909, "age_hours": 168, "keyword": "하체 스트레칭 루틴", "rate": 1415.5714285714284, "rate_kind": "average"}, {"id": "o95SAltAKBA", "title": "스쿼트 이렇게 하면 살빠져요👍 쉽게, 단계별로 도전하기 - 강하나 스트레칭-", "channel": "강하나 스트레칭_stretching", "published": "10일 전", "views": "조회수 8,655회", "length": "13:55", "view_count": 8655, "age_hours": 240, "keyword": "하체 스트레칭 루틴", "rate": 865.5, "rate_kind": "average"}, {"id": "Bv8KYIDkmh8", "title": "앞벅지발달이 고민인 분들을 위한 스트레칭‼️ 하체운동 저를 믿고 함께하세요😌 - 강하나 스트레칭", "channel": "강하나 스트레칭_stretching", "published": "3주 전", "views": "조회수 9,262회", "length": "8:46", "view_count": 9262, "age_hours": 504, "keyword": "하체 스트레칭 루틴", "rate": 441.04761904761904, "rate_kind": "average"}], "search_url": "https://www.youtube.com/results?search_query=%ED%95%98%EC%B2%B4+%EC%8A%A4%ED%8A%B8%EB%A0%88%EC%B9%AD+%EB%A3%A8%ED%8B%B4"}, {"kind": "타겟 시청 콘텐츠", "keyword": "다리 붓기 빼는 법", "videos": [{"id": "t_cwKtpiH74", "title": "\"진작 할걸...\" 퉁퉁 붓고 살 안 빠지는 몸, 하루 10분 림프 순환으로 싹 비워내는 5가지 풀코스 루틴", "channel": "해빗 홈트 | 수정쌤", "published": "3주 전", "views": "조회수 168,939회", "length": "16:42", "view_count": 168939, "age_hours": 504, "keyword": "다리 붓기 빼는 법", "rate": 8044.714285714285, "rate_kind": "average"}, {"id": "U5p4A1XmXRU", "title": "부기 뺴고 25kg 감량! 매일 퉁퉁 붓는 몸, 이 자세 하나면 끝? #라이프꿀팁 #MBCLIFE #기분좋은날 MBC21608방송", "channel": "MBClife", "published": "6일 전", "views": "조회수 23,059회", "length": "14:12", "view_count": 23059, "age_hours": 144, "keyword": "다리 붓기 빼는 법", "rate": 3843.166666666667, "rate_kind": "average"}, {"id": "c_CEYnWms4o", "title": "압박스타킹, 허리를 아프게 한다? 다리 붓기 제대로 빼는 법 | 정파카", "channel": "정파카", "published": "13일 전", "views": "조회수 2,881회", "length": "11:14", "view_count": 2881, "age_hours": 312, "keyword": "다리 붓기 빼는 법", "rate": 221.61538461538464, "rate_kind": "average"}, {"id": "w34phPQBzPA", "title": "저녁마다 붓는 다리, 도움 되는 음식 BEST 5｜양말 자국 깊게 남는다면", "channel": "슬기로운정보", "published": "9일 전", "views": "조회수 440회", "length": "4:24", "view_count": 440, "age_hours": 216, "keyword": "다리 붓기 빼는 법", "rate": 48.88888888888889, "rate_kind": "average"}], "search_url": "https://www.youtube.com/results?search_query=%EB%8B%A4%EB%A6%AC+%EB%B6%93%EA%B8%B0+%EB%B9%BC%EB%8A%94+%EB%B2%95"}, {"kind": "타겟 시청 콘텐츠", "keyword": "다이어트 브이로그", "videos": [], "search_url": "https://www.youtube.com/results?search_query=%EB%8B%A4%EC%9D%B4%EC%96%B4%ED%8A%B8+%EB%B8%8C%EC%9D%B4%EB%A1%9C%EA%B7%B8"}, {"kind": "타겟 시청 콘텐츠", "keyword": "필라테스 하체 운동", "videos": [{"id": "h5FgK0qKY7w", "title": "따라하기 쉬운데 근육 자극은 제대로‼️ 50세 이후 집에서 하는 전신 근력운동", "channel": "슬로우 필라테스", "published": "17시간 전", "views": "조회수 3,069회", "length": "26:26", "view_count": 3069, "age_hours": 17, "keyword": "필라테스 하체 운동", "rate": 4332.705882352941, "rate_kind": "average"}, {"id": "kJje4GQ1Who", "title": "헬스장 안 가고 집에서 30분‼️ 따라하기 쉬운 전신 근력운동", "channel": "슬로우 필라테스", "published": "7일 전", "views": "조회수 16,922회", "length": "31:33", "view_count": 16922, "age_hours": 168, "keyword": "필라테스 하체 운동", "rate": 2417.4285714285716, "rate_kind": "average"}, {"id": "i5rnFGyyi0c", "title": "나이 들수록 약해지는 근육‼️ 전신 근력운동으로 근감소증 예방해요", "channel": "슬로우 필라테스", "published": "9일 전", "views": "조회수 8,120회", "length": "24:26", "view_count": 8120, "age_hours": 216, "keyword": "필라테스 하체 운동", "rate": 902.2222222222223, "rate_kind": "average"}, {"id": "YzuzPHsfVH8", "title": "누워서 편하게 골반열고 하체부종빼는 스트레칭 LOWER BODY STRETCHING 15MIN", "channel": "June Pilates", "published": "5일 전", "views": "조회수 3,061회", "length": "14:43", "view_count": 3061, "age_hours": 120, "keyword": "필라테스 하체 운동", "rate": 612.2, "rate_kind": "average"}], "search_url": "https://www.youtube.com/results?search_query=%ED%95%84%EB%9D%BC%ED%85%8C%EC%8A%A4+%ED%95%98%EC%B2%B4+%EC%9A%B4%EB%8F%99"}], "kin_url": "https://kin.naver.com/qna/questionList.naver", "kin_search_url": "https://kin.naver.com/search/list.naver?query=%ED%97%88%EB%B2%85%EC%A7%80&sort=date", "kin_query": "허벅지", "threads_url": "https://www.threads.com/", "sheet_url": "https://docs.google.com/spreadsheets/d/1k3j848rN5Tb737rwuTiPuFJglY8zyUHfJindFsjLf1A/edit?gid=1847305143#gid=1847305143", "api_url": "https://script.google.com/macros/s/AKfycbx3Md25uyjdFKX91TrOaTEXqDDNoMJcZZwXEZNUqfAbOTDrQY9EG87b54zw9jxouniP/exec", "members": {"manager": "팀장", "member": "규태"}};
 const NAMES = DATA.members;  // {manager: "팀장", member: "규태"}
+const PEOPLE = ["manager", "member"];
+const CATS = {yt: "유튜브", kin: "지식인", threads: "스레드"};
+const WEIGHT = {yt: 50, kin: 25, threads: 25};
+const BREAK_MS = 60 * 60 * 1000;  // 체크 간격이 60분을 넘으면 휴식으로 보고 소요시간에서 뺌
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const wd = ["일","월","화","수","목","금","토"];
 const dayLabel = k => `${+k.slice(5,7)}/${+k.slice(8,10)} (${wd[new Date(k + "T00:00:00").getDay()]})`;
+const T = s => s ? new Date(s).getTime() : null;
+const hm = t => t == null ? "—" : new Date(t).toLocaleTimeString("ko-KR", {hour: "2-digit", minute: "2-digit", hour12: false});
+const dur = ms => { if (ms == null) return "—"; const m = Math.round(ms / 60000); return m < 60 ? `${m}분` : `${Math.floor(m / 60)}시간 ${m % 60}분`; };
 
 // ── 접근 키: 링크의 #k=... 를 기기에 기억 (홈 화면에 추가해도 유지)
 const store = {
@@ -177,17 +247,28 @@ const ONLINE = !!(DATA.api_url && ACCESS);
 addEventListener("hashchange", () => location.reload());  // 다른 접근 링크를 같은 탭에 붙여넣은 경우
 
 let role = ONLINE ? null : "manager";  // 서버 응답으로 확정
-let items = {};      // 항목키 → {assignee, done, doneBy}
-let feedback = [];
-let logRows = [];
+let items = {};      // 항목키 → {assignee, done, doneBy, doneAt}
+let feedback = [], logRows = [];
+let quotas = {kin: {manager: 1, member: 0}, threads: {manager: 1, member: 0}};
+let pending = 0, lastSync = null;
+const me = () => role === "member" ? "member" : "manager";
+const visiblePeople = () => !ONLINE ? ["manager"] : role === "manager" ? PEOPLE : ["member"];
 
-// ── 오늘의 전체 항목 목록
-const ITEMS = [];
-DATA.groups.forEach(g => g.videos.forEach(v => ITEMS.push({key: "yt:" + v.id, label: v.title, cat: "yt"})));
-ITEMS.push({key: "kin", label: "네이버 지식인", cat: "kin"}, {key: "threads", label: "스레드", cat: "threads"});
-const ITEM = Object.fromEntries(ITEMS.map(i => [i.key, i]));
-const assignee = key => items[key]?.assignee || "manager";
+// ── 오늘의 항목: 유튜브 영상 + 지식인/스레드 할당량만큼의 칸 (kin:member:3 등)
+let ITEMS = [], ITEM = {};
+const VIDEOS = [];
+DATA.groups.forEach(g => g.videos.forEach(v => VIDEOS.push({key: "yt:" + v.id, label: v.title, cat: "yt"})));
+function buildItems() {
+  ITEMS = [...VIDEOS];
+  for (const cat of ["kin", "threads"]) for (const p of PEOPLE)
+    for (let n = 1; n <= (quotas[cat][p] || 0); n++)
+      ITEMS.push({key: `${cat}:${p}:${n}`, label: `${CATS[cat]} #${n}`, cat, owner: p});
+  ITEM = Object.fromEntries(ITEMS.map(i => [i.key, i]));
+}
+const ownerOf = key => (/^(?:kin|threads|start):(manager|member)\b/.exec(key) || [])[1];
+const assignee = key => ownerOf(key) || items[key]?.assignee || "manager";
 const isDone = key => !!items[key]?.done;
+buildItems();
 
 // ── 기본 링크
 const d = new Date(DATA.date + "T00:00:00");
@@ -199,7 +280,7 @@ $("th-link").href = DATA.threads_url;
 $("sheet-link").href = DATA.sheet_url;
 $("th-both").onclick = () => { window.open(DATA.threads_url, "_blank"); window.open(DATA.sheet_url, "_blank"); };
 
-// ── 영상 목록
+// ── 영상 목록 (한 번만 그리고 이후에는 상태만 갱신)
 const fmt = n => n >= 1e4 ? (n / 1e4).toFixed(n >= 1e5 ? 0 : 1).replace(/\.0$/, "") + "만" : Math.round(n).toLocaleString();
 const rateText = v => v.rate > 0 ? `하루 +${fmt(v.rate)}회${v.rate_kind === "measured" ? " (실측)" : ""}` : "";
 $("groups").innerHTML = DATA.groups.map((g, gi) => `
@@ -224,13 +305,12 @@ $("groups").innerHTML = DATA.groups.map((g, gi) => `
           ${rateText(v) ? `<div class="rate">${esc(rateText(v))}</div>` : ""}
           <div class="sub">${esc([v.views, v.published].filter(Boolean).join(" · "))}</div>
           <div class="foot">
-            <label class="check"><input type="checkbox" data-key="yt:${esc(v.id)}">댓글 완료</label>
+            <label class="check"><input type="checkbox" data-key="yt:${esc(v.id)}">댓글 완료 <span class="at"></span></label>
             <button class="who" data-who="yt:${esc(v.id)}"></button>
           </div>
         </div>
       </div>`).join("")}</div>` : `<div class="empty">새 영상이 없어요. "유튜브에서 더 보기"를 눌러 직접 찾아보세요.</div>`}
   </div>`).join("");
-
 const boxes = [...document.querySelectorAll("input[data-key]")];
 let filter = null, filterRole;  // 역할이 정해지면 그 역할의 기본 필터로
 
@@ -238,70 +318,140 @@ let filter = null, filterRole;  // 역할이 정해지면 그 역할의 기본 �
 function applyServer(res) {
   if (!res || res.error) { showNotice("서버 오류: " + (res?.error || "응답 없음")); return; }
   role = res.role; items = res.items || {}; feedback = res.feedback || []; logRows = res.log || [];
+  if (res.quotas) quotas = res.quotas;
+  lastSync = Date.now();
+  buildItems();
   render();
 }
 function post(body) {
-  if (!ONLINE) { store.set("local-" + DATA.date, JSON.stringify(items)); return; }
+  if (!ONLINE) { store.set("local-" + DATA.date, JSON.stringify({items, quotas})); return; }
+  pending++;
   fetch(DATA.api_url, {method: "POST", body: JSON.stringify({k: ACCESS, date: DATA.date, summary: summaries(), ...body})})
-    .then(r => r.json()).then(applyServer).catch(() => showNotice("저장에 실패했어요. 인터넷 연결을 확인하고 새로고침해 주세요."));
+    .then(r => r.json()).then(res => { pending--; if (!pending) applyServer(res); })
+    .catch(() => { pending--; showNotice("저장에 실패했어요. 인터넷 연결을 확인하고 새로고침해 주세요."); });
+}
+function poll() {
+  if (!ONLINE || pending || document.hidden) return;
+  fetch(`${DATA.api_url}?k=${encodeURIComponent(ACCESS)}&date=${DATA.date}`)
+    .then(r => r.json()).then(res => { if (!pending) applyServer(res); })
+    .catch(() => { $("live").className = "live off"; $("live").lastElementChild.textContent = "연결 끊김 · 재시도 중"; });
 }
 
-function setDone(key, done) {
-  items[key] = {...(items[key] || {assignee: "manager"}), done, doneBy: role};
+const canCheck = key => !ONLINE || role === "manager" || assignee(key) === "member";
+function setDone(key, done, label, cat) {
+  const it = ITEM[key] || {key, label, cat};
+  items[key] = {...(items[key] || {assignee: assignee(key)}), done, doneBy: role, doneAt: done ? new Date().toISOString() : ""};
   render();
-  post({action: "check", item: ITEM[key], done});
+  post({action: "check", item: {key, label: it.label, cat: it.cat}, done});
 }
 function setAssignee(keys, who) {
   keys.forEach(k => { items[k] = {...(items[k] || {}), assignee: who}; });
   render();
   post({action: "assign", items: keys.map(k => ITEM[k]), assignee: who});
 }
+function setQuota(cat, person, n) {
+  n = Math.max(0, Math.min(50, n));
+  quotas = {...quotas, [cat]: {...quotas[cat], [person]: n}};
+  buildItems();
+  render();
+  post({action: "quota", cat, person, n});
+}
 
 boxes.forEach(b => b.onchange = () => setDone(b.dataset.key, b.checked));
-document.querySelectorAll("[data-who]").forEach(b => b.onclick = () => {
-  if (role !== "manager" || !ONLINE) return;
-  const k = b.dataset.who;
-  setAssignee([k], assignee(k) === "member" ? "manager" : "member");
-});
-document.querySelectorAll("[data-assign-group]").forEach(b => b.onclick = () => {
-  const keys = DATA.groups[+b.dataset.assignGroup].videos.map(v => "yt:" + v.id);
-  setAssignee(keys, keys.every(k => assignee(k) === "member") ? "manager" : "member");
+document.addEventListener("click", e => {
+  const who = e.target.closest("[data-who]");
+  if (who && role === "manager" && ONLINE) {
+    const k = who.dataset.who;
+    return setAssignee([k], assignee(k) === "member" ? "manager" : "member");
+  }
+  const grp = e.target.closest("[data-assign-group]");
+  if (grp) {
+    const keys = DATA.groups[+grp.dataset.assignGroup].videos.map(v => "yt:" + v.id);
+    return setAssignee(keys, keys.every(k => assignee(k) === "member") ? "manager" : "member");
+  }
+  const unit = e.target.closest("[data-unit]");
+  if (unit && !unit.disabled) return setDone(unit.dataset.unit, !isDone(unit.dataset.unit));
+  const q = e.target.closest("[data-quota]");
+  if (q) { const [cat, p, delta] = q.dataset.quota.split(":"); return setQuota(cat, p, (quotas[cat][p] || 0) + +delta); }
+  const st = e.target.closest("[data-start]");
+  if (st && !st.disabled) return setDone("start:" + st.dataset.start, true, "업무 시작", "start");
 });
 
-// ── 수행율: 유튜브 50 / 지식인 25 / 스레드 25, 그 사람에게 할당된 분류만으로 다시 비율 계산
-const WEIGHT = {yt: 50, kin: 25, threads: 25};
-function personStats(who) {
-  const mine = ITEMS.filter(i => assignee(i.key) === who);
-  let w = 0, score = 0;
-  for (const cat of Object.keys(WEIGHT)) {
-    const list = mine.filter(i => i.cat === cat);
-    if (!list.length) continue;
-    w += WEIGHT[cat];
-    score += WEIGHT[cat] * list.filter(i => isDone(i.key)).length / list.length;
+// ── 수행율 · 시간 계산
+// 수행율: 유튜브 50 / 지식인 25 / 스레드 25, 그 사람에게 할당된 분류만으로 다시 비율 계산
+function catStats(p) {
+  const out = {};
+  for (const cat of Object.keys(CATS)) {
+    const list = ITEMS.filter(i => i.cat === cat && assignee(i.key) === p);
+    out[cat] = {total: list.length, done: list.filter(i => isDone(i.key)).length};
   }
-  return {person: who, assigned: mine.length, done: mine.filter(i => isDone(i.key)).length, pct: w ? Math.round(score / w * 100) : null};
+  return out;
+}
+function timeline(p) {
+  const s = items["start:" + p];
+  const start = s?.done ? T(s.doneAt) : null;
+  const events = ITEMS.filter(i => assignee(i.key) === p && isDone(i.key) && items[i.key]?.doneAt)
+    .map(i => ({...i, p, t: T(items[i.key].doneAt)})).sort((a, b) => a.t - b.t);
+  let prev = start, work = 0, counted = 0;
+  for (const e of events) {
+    const gap = prev != null ? e.t - prev : null;
+    e.brk = gap != null && gap > BREAK_MS;
+    e.dur = gap != null && gap >= 0 && !e.brk ? gap : null;
+    if (e.dur != null) { work += e.dur; counted++; }
+    prev = e.t;
+  }
+  return {start, first: start ?? events[0]?.t ?? null, last: events.at(-1)?.t ?? null, events, work: counted ? work : null, counted};
+}
+function personStats(p) {
+  const cs = catStats(p);
+  let w = 0, score = 0, assigned = 0, done = 0;
+  for (const cat of Object.keys(cs)) {
+    assigned += cs[cat].total; done += cs[cat].done;
+    if (!cs[cat].total) continue;
+    w += WEIGHT[cat]; score += WEIGHT[cat] * cs[cat].done / cs[cat].total;
+  }
+  const tl = timeline(p);
+  return {person: p, assigned, done, pct: w ? Math.round(score / w * 100) : null,
+    start: tl.first ? new Date(tl.first).toISOString() : null, end: tl.last ? new Date(tl.last).toISOString() : null,
+    workMin: tl.work == null ? null : Math.round(tl.work / 60000)};
 }
 // 할당이 0개가 된 사람도 보내서 시트의 이전 값을 덮어쓴다 (pct = null → "할당 없음")
-const summaries = () => ["manager", "member"].map(personStats);
+const summaries = () => PEOPLE.map(personStats);
 
 function showNotice(msg) {
   $("notices").insertAdjacentHTML("afterbegin", `<div class="notice">${esc(msg)}</div>`);
 }
 
+// ── 화면 그리기
 function render() {
   const mgr = role === "manager";
   document.body.classList.toggle("manager-view", mgr && ONLINE);
   $("role").textContent = !ONLINE ? "개인 모드" : !role ? "불러오는 중" : mgr ? `${NAMES.manager} 보기` : `${NAMES.member} 보기`;
+  if (ONLINE && lastSync) { $("live").className = "live"; $("live").lastElementChild.textContent = `실시간 · ${new Date(lastSync).toLocaleTimeString("ko-KR", {hour12: false})} 갱신`; }
+  if (!ONLINE) { $("live").className = "live off"; $("live").lastElementChild.textContent = "개인 모드 (이 기기에만 저장)"; }
 
-  // 필터 버튼
+  renderFilters();
+  renderVideos();
+  renderUnits();
+  renderPeople();
+  renderCumChart();
+  renderTimeline();
+  renderNotices();
+  renderLog();
+}
+
+function renderFilters() {
+  const mgr = role === "manager";
   const opts = !ONLINE ? [["all", "전체"], ["todo", "남은 것"], ["done", "완료"]]
     : mgr ? [["all", "전체"], ["member", `${NAMES.member} 할당`], ["todo", "남은 것"], ["done", "완료"]]
     : [["mine", "내 과업"], ["all", "전체"], ["done", "완료"]];
   if (filterRole !== role || !opts.some(o => o[0] === filter)) { filter = opts[0][0]; filterRole = role; }
   $("filters").innerHTML = opts.map(([f, t]) => `<button class="btn${f === filter ? " on" : ""}" data-f="${f}">${t}</button>`).join("");
   document.querySelectorAll("[data-f]").forEach(b => b.onclick = () => { filter = b.dataset.f; render(); });
+}
 
-  // 담당 표시 + 체크 가능 여부 (팀원은 본인 항목만)
+function renderVideos() {
+  const mgr = role === "manager";
   document.querySelectorAll("[data-who]").forEach(b => {
     const a = assignee(b.dataset.who);
     b.textContent = NAMES[a];
@@ -311,15 +461,14 @@ function render() {
   });
   boxes.forEach(b => {
     b.checked = isDone(b.dataset.key);
-    b.disabled = ONLINE && (!role || (!mgr && assignee(b.dataset.key) !== "member"));
+    b.disabled = ONLINE && (!role || !canCheck(b.dataset.key));
+    b.parentElement.querySelector(".at").textContent = b.checked ? hm(T(items[b.dataset.key]?.doneAt)) : "";
   });
   document.querySelectorAll(".mgr-only").forEach(b => b.style.display = mgr && ONLINE ? "" : "none");
   document.querySelectorAll("[data-assign-group]").forEach(b => {
     const keys = DATA.groups[+b.dataset.assignGroup].videos.map(v => "yt:" + v.id);
     b.textContent = keys.every(k => assignee(k) === "member") ? `전체 → ${NAMES.manager}` : `전체 → ${NAMES.member}`;
   });
-
-  // 카드 표시/필터
   document.querySelectorAll(".vid").forEach(el => {
     const k = el.dataset.vid, done = isDone(k), a = assignee(k);
     el.classList.toggle("done", done);
@@ -332,26 +481,123 @@ function render() {
     const cards = [...g.querySelectorAll(".vid")];
     g.style.display = cards.length && cards.every(c => c.style.display === "none") ? "none" : "";
   });
+  const mine = ONLINE && role === "member" ? "member" : null;
+  const yt = VIDEOS.filter(i => !mine || assignee(i.key) === mine);
+  $("yt-count").textContent = `${yt.filter(i => isDone(i.key)).length} / ${yt.length}`;
+  $("yt-meta").textContent = mine ? `${NAMES.member}님에게 할당된 영상` : "아래 영상에 들어가서 댓글 달고 체크하기";
+}
 
-  // 상단 카운트 / 진행률
-  const me = ONLINE && !mgr ? "member" : null;
-  const ytMine = ITEMS.filter(i => i.cat === "yt" && (!me || assignee(i.key) === me));
-  $("yt-count").textContent = `${ytMine.filter(i => isDone(i.key)).length} / ${ytMine.length}`;
-  $("yt-meta").textContent = me ? `${NAMES.member}님에게 할당된 영상` : "아래 영상에 들어가서 댓글 달고 체크하기";
-  $("t-yt").classList.toggle("complete", ytMine.length > 0 && ytMine.every(i => isDone(i.key)));
-  $("t-kin").classList.toggle("complete", isDone("kin"));
-  $("t-th").classList.toggle("complete", isDone("threads"));
+// 지식인 / 스레드: 사람별 할당량 + 1건씩 체크하는 칸 (체크하면 시각 표시)
+function renderUnits() {
+  const mgr = role === "manager";
+  for (const cat of ["kin", "threads"]) {
+    $("units-" + cat).innerHTML = visiblePeople().map(p => {
+      const n = quotas[cat][p] || 0;
+      const keys = Array.from({length: n}, (_, i) => `${cat}:${p}:${i + 1}`);
+      const doneN = keys.filter(isDone).length;
+      const control = mgr && ONLINE
+        ? `<span class="stepper"><button data-quota="${cat}:${p}:-1" aria-label="줄이기">−</button><span>${n}건</span><button data-quota="${cat}:${p}:1" aria-label="늘리기">+</button></span>`
+        : `<span class="sub">할당 ${n}건</span>`;
+      const chips = keys.map((k, i) => {
+        const done = isDone(k);
+        return `<button class="chip ${p}${done ? " done" : ""}" data-unit="${k}" ${ONLINE && !canCheck(k) ? "disabled" : ""}
+          title="${done ? "완료 " + hm(T(items[k]?.doneAt)) + " · 다시 누르면 취소" : "완료하면 누르기"}">${done ? "✓ " + hm(T(items[k]?.doneAt)) : "#" + (i + 1)}</button>`;
+      }).join("");
+      return `<div class="unit-row"><div class="uhead"><span class="pdot ${p}"></span><b>${esc(NAMES[p])}</b>${control}<span class="cnt">${doneN} / ${n}</span></div>
+        ${n ? `<div class="chips">${chips}</div>` : `<div class="empty">할당 없음</div>`}</div>`;
+    }).join("");
+    const all = ITEMS.filter(i => i.cat === cat && visiblePeople().includes(i.owner));
+    $(cat === "kin" ? "t-kin" : "t-th").style.opacity = all.length && all.every(i => isDone(i.key)) ? .7 : "";
+  }
+}
 
-  const people = !ONLINE ? ["manager"] : mgr ? ["manager", "member"] : ["member"];
-  $("progress").innerHTML = people.map(p => {
-    const s = personStats(p);
-    const label = !ONLINE ? "오늘 진행률" : `${NAMES[p]} 수행율 (${s.done}/${s.assigned})`;
-    return `<div class="progress"><div class="label"><span>${esc(label)}</span><span>${s.pct == null ? "-" : s.pct + "%"}</span></div>
-      <div class="bar${p === "member" ? " member" : ""}"><i style="width:${s.pct || 0}%"></i></div></div>`;
+function renderPeople() {
+  $("people").innerHTML = visiblePeople().map(p => {
+    const s = personStats(p), cs = catStats(p), tl = timeline(p);
+    const rows = Object.keys(CATS).filter(c => cs[c].total).map(c => `
+      <div class="catrow"><span>${CATS[c]}</span><div class="track ${p}"><i style="width:${cs[c].done / cs[c].total * 100}%"></i></div><b>${cs[c].done}/${cs[c].total}</b></div>`).join("");
+    const avg = tl.counted ? tl.work / tl.counted : null;
+    const mineStart = ONLINE && p === me() && role;
+    const startBtn = mineStart && !tl.start ? `<button class="btn small primary" data-start="${p}">업무 시작</button>` : "";
+    return `<div class="ptile">
+      <div class="top"><span class="name"><span class="pdot ${p}"></span>${esc(NAMES[p])}</span>${startBtn}</div>
+      <div class="pct">${s.pct == null ? "—" : s.pct + "%"}<small>${s.pct == null ? "할당 없음" : `${s.done} / ${s.assigned}건`}</small></div>
+      ${rows || `<div class="empty">오늘 할당된 과업이 없어요.</div>`}
+      <div class="worktime">
+        <span>시작 <b>${hm(tl.start)}</b>${tl.start ? "" : (tl.first ? ` (첫 완료 ${hm(tl.first)})` : "")}</span>
+        <span>마지막 완료 <b>${hm(tl.last)}</b></span>
+        <span>순작업 <b>${dur(tl.work)}</b></span>
+        <span>건당 평균 <b>${dur(avg)}</b></span>
+      </div>
+    </div>`;
   }).join("");
+}
 
-  renderNotices();
-  renderLog();
+// 누적 완료 건수: 사람별 계단선 (색 = 사람, 끝에 이름 직접 표시, 마우스 올리면 시각별 건수)
+function renderCumChart() {
+  const ppl = visiblePeople();
+  const series = ppl.map(p => ({p, tl: timeline(p), total: personStats(p).assigned}));
+  $("cum-legend").innerHTML = ppl.length > 1 ? ppl.map(p => `<span><span class="pdot ${p}"></span>${esc(NAMES[p])}</span>`).join("") : "";
+  const day0 = new Date(DATA.date + "T00:00:00").getTime();
+  const firsts = series.map(s => s.tl.first).filter(Boolean);
+  const lasts = series.map(s => s.tl.last).filter(Boolean);
+  if (!firsts.length) { $("cum-chart").innerHTML = `<div class="empty">아직 완료한 과업이 없어요. 체크하면 여기에 시간대별로 쌓여요.</div>`; return; }
+  const H = 3600e3, now = Math.min(Date.now(), day0 + 24 * H - 1);
+  const x0 = Math.min(Math.floor(Math.min(...firsts) / H) * H, day0 + 9 * H);
+  const x1 = Math.max(Math.ceil(Math.max(now, ...lasts) / H) * H, x0 + 2 * H);
+  const yMax = Math.max(1, ...series.map(s => Math.max(s.total, s.tl.events.length)));
+  const W = 760, Ht = 220, m = {l: 30, r: 64, t: 12, b: 24};
+  const X = t => m.l + (t - x0) / (x1 - x0) * (W - m.l - m.r);
+  const Y = v => Ht - m.b - v / yMax * (Ht - m.t - m.b);
+  const ticks = [0, Math.round(yMax / 2), yMax].filter((v, i, a) => a.indexOf(v) === i);
+  const hours = [];
+  const stepH = (x1 - x0) / H > 8 ? 2 : 1;
+  for (let t = x0; t <= x1; t += stepH * H) hours.push(t);
+  const paths = series.map(s => {
+    const start = s.tl.first;
+    let dStr = `M${X(start)},${Y(0)}`, c = 0;
+    for (const e of s.tl.events) { dStr += `H${X(e.t)}V${Y(++c)}`; }
+    dStr += `H${X(Math.max(now, s.tl.last || start))}`;
+    const endX = X(Math.max(now, s.tl.last || start));
+    return `<path d="${dStr}" fill="none" stroke="var(--p-${s.p})" stroke-width="2" stroke-linejoin="round"/>
+      <circle cx="${endX}" cy="${Y(c)}" r="4" fill="var(--p-${s.p})" stroke="var(--card)" stroke-width="2"/>
+      <text class="lbl" x="${endX + 8}" y="${Y(c) + 4}">${esc(NAMES[s.p])} ${c}</text>`;
+  }).join("");
+  $("cum-chart").innerHTML = `<svg viewBox="0 0 ${W} ${Ht}" role="img" aria-label="오늘 누적 완료 건수">
+    ${ticks.map(v => `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--grid)"/><text x="${m.l - 6}" y="${Y(v) + 4}" text-anchor="end">${v}</text>`).join("")}
+    ${hours.map(t => `<text x="${X(t)}" y="${Ht - 6}" text-anchor="middle">${new Date(t).getHours()}시</text>`).join("")}
+    ${paths}
+    <line id="cum-x" y1="${m.t}" y2="${Ht - m.b}" stroke="var(--muted)" stroke-dasharray="3 3" opacity="0"/>
+    <rect x="${m.l}" y="0" width="${W - m.l - m.r}" height="${Ht}" fill="transparent" id="cum-hit"/>
+  </svg>`;
+  const svg = $("cum-chart").querySelector("svg"), tip = $("cum-tip"), cross = $("cum-x");
+  const move = ev => {
+    const r = svg.getBoundingClientRect();
+    const px = (ev.clientX - r.left) / r.width * W;
+    const t = x0 + (px - m.l) / (W - m.l - m.r) * (x1 - x0);
+    if (t < x0 || t > x1) return;
+    cross.setAttribute("x1", px); cross.setAttribute("x2", px); cross.setAttribute("opacity", 1);
+    tip.innerHTML = `<b>${hm(t)}</b><br>` + series.map(s => `${esc(NAMES[s.p])} ${s.tl.events.filter(e => e.t <= t).length}건`).join("<br>");
+    const box = $("cum-box").getBoundingClientRect();
+    tip.style.left = Math.min(ev.clientX - box.left + 12, box.width - 110) + "px";
+    tip.style.top = (ev.clientY - box.top - 10) + "px";
+    tip.classList.add("on");
+  };
+  const hit = $("cum-hit");
+  hit.onpointermove = move;
+  hit.onpointerleave = () => { tip.classList.remove("on"); cross.setAttribute("opacity", 0); };
+}
+
+function renderTimeline() {
+  const ev = visiblePeople().flatMap(p => timeline(p).events).sort((a, b) => b.t - a.t).slice(0, 60);
+  const starts = visiblePeople().map(p => ({p, t: timeline(p).start})).filter(s => s.t);
+  const rows = [...ev.map(e => ({t: e.t, p: e.p, task: e.cat === "yt" ? `유튜브 · ${e.label}` : e.label, d: e.brk ? "휴식 후" : dur(e.dur)})),
+    ...starts.map(s => ({t: s.t, p: s.p, task: "업무 시작", d: ""}))].sort((a, b) => b.t - a.t);
+  $("timeline").innerHTML = rows.length
+    ? `<tr><th>시각</th><th>담당</th><th>과업</th><th>소요</th></tr>` + rows.map(r => `<tr>
+        <td class="t">${hm(r.t)}</td><td><span class="pdot ${r.p}"></span>${esc(NAMES[r.p])}</td>
+        <td class="tk" title="${esc(r.task)}">${esc(r.task)}</td><td class="t">${esc(r.d)}</td></tr>`).join("")
+    : `<tr><td class="empty">"업무 시작"을 누르고 과업을 하나씩 체크하면 시각과 소요시간이 기록돼요.</td></tr>`;
 }
 
 function renderNotices() {
@@ -374,7 +620,6 @@ function renderLog() {
   if (!role) return;
   const mgr = role === "manager";
 
-  // 피드백 작성 (관리자만)
   if (mgr && !$("fb-text")) {
     $("fb-area").innerHTML = `<div class="fb-form"><textarea id="fb-text" placeholder="${esc(NAMES.member)}님에게 오늘 수행에 대한 짧은 피드백"></textarea>
       <button class="btn primary" id="fb-send">보내기</button></div>`;
@@ -396,40 +641,102 @@ function renderLog() {
   feedback.forEach(f => (fbByDay[f.date] ||= []).push(f));
   Object.keys(fbByDay).forEach(k => byDay[k] ||= {});
   const days = Object.keys(byDay).sort().reverse().slice(0, 30);
-
-  const people = mgr ? ["manager", "member"] : ["member"];
+  const people = visiblePeople();
+  const num = v => typeof v === "number" ? v : null;
   const avg = (p, n) => {
-    const v = days.slice(0, n).map(k => byDay[k][p]?.pct).filter(x => typeof x === "number");
+    const v = days.slice(0, n).map(k => num(byDay[k][p]?.pct)).filter(x => x != null);
     return v.length ? Math.round(v.reduce((a, b) => a + b, 0) / v.length) + "%" : "-";
   };
-  const cell = (p, r) => r && r.pct != null && r.pct !== ""
-    ? `<span class="minibar${p === "member" ? " member" : ""}"><i style="width:${r.pct}%"></i></span>${r.pct}% <span class="sub">(${r.done}/${r.assigned})</span>`
+  const avgWork = p => {
+    const v = days.slice(0, 7).map(k => byDay[k][p]).filter(r => num(r?.workMin) != null && r.done);
+    const mins = v.reduce((a, r) => a + r.workMin, 0), cnt = v.reduce((a, r) => a + r.done, 0);
+    return cnt ? dur(mins / cnt * 60000) : "-";
+  };
+  const cell = r => num(r?.pct) != null
+    ? `<b>${r.pct}%</b> <span class="sub">(${r.done}/${r.assigned})</span>`
     : `<span class="sub">할당 없음</span>`;
+  const timeCell = r => num(r?.pct) != null && r.start
+    ? `${hm(T(r.start))}~${hm(T(r.end))}<br><span class="sub">순작업 ${dur(num(r.workMin) == null ? null : r.workMin * 60000)}</span>` : `<span class="sub">—</span>`;
 
   el.className = "";
   el.innerHTML = `
     <div class="stats">${people.map(p => `
-      <div class="stat"><b>${avg(p, 7)}</b><span>${esc(NAMES[p])} 최근 7일 평균</span></div>
-      <div class="stat"><b>${avg(p, 30)}</b><span>${esc(NAMES[p])} 최근 30일 평균</span></div>`).join("")}
+      <div class="stat"><b>${avg(p, 7)}</b><span><span class="pdot ${p}"></span>${esc(NAMES[p])} 7일 평균 수행율</span></div>
+      <div class="stat"><b>${avgWork(p)}</b><span><span class="pdot ${p}"></span>${esc(NAMES[p])} 7일 건당 평균 시간</span></div>`).join("")}
+    </div>
+    <div class="chartbox chart" id="trend-box">
+      <h3>최근 14일 수행율</h3>
+      <div class="legend">${people.length > 1 ? people.map(p => `<span><span class="pdot ${p}"></span>${esc(NAMES[p])}</span>`).join("") : ""}</div>
+      <div id="trend-chart"></div>
+      <div class="tip" id="trend-tip"></div>
     </div>
     <div class="tablewrap"><table class="logtable">
-      <tr><th>날짜</th>${people.map(p => `<th>${esc(NAMES[p])}</th>`).join("")}<th>${esc(NAMES.member)} 피드백</th></tr>
+      <tr><th>날짜</th>${people.map(p => `<th>${esc(NAMES[p])} 수행율</th><th>${esc(NAMES[p])} 근무시간</th>`).join("")}<th>${esc(NAMES.member)} 피드백</th></tr>
       ${days.map(k => `<tr>
         <td>${dayLabel(k)}${k === DATA.date ? " · 오늘" : ""}</td>
-        ${people.map(p => `<td>${cell(p, byDay[k][p])}</td>`).join("")}
+        ${people.map(p => `<td>${cell(byDay[k][p])}</td><td>${timeCell(byDay[k][p])}</td>`).join("")}
         <td class="fbcell">${(fbByDay[k] || []).map(f => `<div>${esc(f.text)}</div>`).join("") || `<span class="sub">—</span>`}</td>
       </tr>`).join("")}
     </table></div>`;
+  renderTrend(byDay, people);
+}
+
+// 최근 14일 수행율: 날짜별 막대 (사람별 나란히, 2px 간격, 윗끝 둥글게)
+function renderTrend(byDay, people) {
+  const days = [];
+  for (let i = 13; i >= 0; i--) {
+    const t = new Date(DATA.date + "T00:00:00"); t.setDate(t.getDate() - i);
+    days.push(`${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}-${String(t.getDate()).padStart(2, "0")}`);
+  }
+  const W = 760, Ht = 180, m = {l: 34, r: 8, t: 10, b: 24};
+  const slot = (W - m.l - m.r) / days.length, gap = 2;
+  const bw = Math.min(18, (slot * .7 - gap * (people.length - 1)) / people.length);
+  const Y = v => Ht - m.b - v / 100 * (Ht - m.t - m.b);
+  const bar = (x, v, p, k) => {
+    const y = Y(v), h = Ht - m.b - y, r = Math.min(4, h, bw / 2);
+    const dPath = h <= 0 ? "" : `M${x},${Ht - m.b}V${y + r}Q${x},${y} ${x + r},${y}H${x + bw - r}Q${x + bw},${y} ${x + bw},${y + r}V${Ht - m.b}Z`;
+    return dPath ? `<path d="${dPath}" fill="var(--p-${p})"/>` : "";
+  };
+  let marks = "", hits = "";
+  days.forEach((k, i) => {
+    const cx = m.l + slot * i + slot / 2, x = cx - (bw * people.length + gap * (people.length - 1)) / 2;
+    people.forEach((p, j) => {
+      const r = byDay[k]?.[p], v = typeof r?.pct === "number" ? r.pct : null;
+      if (v != null) marks += bar(x + j * (bw + gap), v, p, k);
+    });
+    hits += `<rect x="${m.l + slot * i}" y="0" width="${slot}" height="${Ht}" fill="transparent" data-day="${k}"/>`;
+  });
+  $("trend-chart").innerHTML = `<svg viewBox="0 0 ${W} ${Ht}" role="img" aria-label="최근 14일 수행율">
+    ${[0, 50, 100].map(v => `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--grid)"/><text x="${m.l - 6}" y="${Y(v) + 4}" text-anchor="end">${v}%</text>`).join("")}
+    ${days.map((k, i) => i % 2 === (days.length - 1) % 2 ? `<text x="${m.l + slot * i + slot / 2}" y="${Ht - 6}" text-anchor="middle">${+k.slice(5, 7)}/${+k.slice(8)}</text>` : "").join("")}
+    ${marks}${hits}</svg>`;
+  const tip = $("trend-tip"), box = $("trend-box");
+  $("trend-chart").querySelectorAll("[data-day]").forEach(h => {
+    h.onpointermove = ev => {
+      const k = h.dataset.day;
+      tip.innerHTML = `<b>${dayLabel(k)}</b><br>` + people.map(p => {
+        const r = byDay[k]?.[p];
+        return `${esc(NAMES[p])} ${typeof r?.pct === "number" ? `${r.pct}% (${r.done}/${r.assigned})` : "기록 없음"}`;
+      }).join("<br>");
+      const b = box.getBoundingClientRect();
+      tip.style.left = Math.min(ev.clientX - b.left + 12, b.width - 150) + "px";
+      tip.style.top = (ev.clientY - b.top - 10) + "px";
+      tip.classList.add("on");
+    };
+    h.onpointerleave = () => tip.classList.remove("on");
+  });
 }
 
 // ── 시작
 if (ONLINE) {
   render();
-  fetch(`${DATA.api_url}?k=${encodeURIComponent(ACCESS)}&date=${DATA.date}`)
-    .then(r => r.json()).then(applyServer)
-    .catch(() => showNotice("기록 서버에 연결하지 못했어요. 새로고침해 주세요."));
+  poll();
+  setInterval(poll, 30000);
+  setInterval(() => { if (!pending) render(); }, 60000);  // 경과 시간 · 그래프 끝점 갱신
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) poll(); });
 } else {
-  try { items = JSON.parse(store.get("local-" + DATA.date) || "{}"); } catch (e) {}
+  try { const saved = JSON.parse(store.get("local-" + DATA.date) || "{}"); items = saved.items || {}; if (saved.quotas) quotas = saved.quotas; } catch (e) {}
+  buildItems();
   render();
 }
 </script>

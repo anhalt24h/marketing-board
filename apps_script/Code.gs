@@ -4,8 +4,9 @@
  *
  * 시트 탭 (없으면 자동 생성)
  *   items    : 날짜 | 항목키 | 항목명 | 분류 | 담당 | 완료 | 완료자 | 완료시각
- *   log      : 날짜 | 담당 | 할당 | 완료 | 수행율(%) | 갱신시각
+ *   log      : 날짜 | 담당 | 할당 | 완료 | 수행율(%) | 갱신시각 | 업무시작 | 마지막완료 | 순작업(분)
  *   feedback : 날짜 | 받는사람 | 내용 | 작성시각
+ *   quota    : 날짜 | 분류 | 담당 | 목표건수 | 갱신시각   (그날 값이 없으면 가장 최근 값을 이어서 씀)
  *
  * 접근 키: 보드 링크 끝의 #k=... 값. 관리자 키는 할당/피드백까지, 팀원 키는 본인 과업 체크만 가능.
  */
@@ -16,8 +17,9 @@ const KEYS = {
 
 const TABS = {
   items: ['날짜', '항목키', '항목명', '분류', '담당', '완료', '완료자', '완료시각'],
-  log: ['날짜', '담당', '할당', '완료', '수행율(%)', '갱신시각'],
+  log: ['날짜', '담당', '할당', '완료', '수행율(%)', '갱신시각', '업무시작', '마지막완료', '순작업(분)'],
   feedback: ['날짜', '받는사람', '내용', '작성시각'],
+  quota: ['날짜', '분류', '담당', '목표건수', '갱신시각'],
 };
 
 function sheet_(name) {
@@ -27,8 +29,28 @@ function sheet_(name) {
     sh = ss.insertSheet(name);
     sh.appendRow(TABS[name]);
     sh.setFrozenRows(1);
+  } else if (sh.getLastColumn() < TABS[name].length) {
+    sh.getRange(1, 1, 1, TABS[name].length).setValues([TABS[name]]);  // 열이 늘어난 경우 머리글 보강
   }
   return sh;
+}
+
+const DAY_ = c => c instanceof Date ? Utilities.formatDate(c, 'Asia/Seoul', 'yyyy-MM-dd') : c;
+
+// 항목키에 담당이 들어 있는 경우 (kin:member:3, threads:manager:1, start:member)
+function ownerFromKey_(key) {
+  const m = /^(?:kin|threads|start):(manager|member)\b/.exec(key);
+  return m ? m[1] : null;
+}
+
+function quotas_(date) {
+  const q = { kin: { manager: 1, member: 0 }, threads: { manager: 1, member: 0 } };
+  const best = {};
+  rows_('quota').forEach(r => {
+    const k = r[1] + '/' + r[2];
+    if (r[0] <= date && (!best[k] || best[k] <= r[0]) && q[r[1]]) { best[k] = r[0]; q[r[1]][r[2]] = Number(r[3]) || 0; }
+  });
+  return q;
 }
 
 function rows_(name) {
@@ -54,8 +76,8 @@ function dayState_(role, date) {
     .slice(-60);
   const log = rows_('log')
     .filter(r => role === 'manager' || r[1] === role)
-    .map(r => ({ date: r[0], person: r[1], assigned: r[2], done: r[3], pct: r[4] }));
-  return { role, items, feedback, log };
+    .map(r => ({ date: r[0], person: r[1], assigned: r[2], done: r[3], pct: r[4], start: r[6] || null, end: r[7] || null, workMin: r[8] === '' ? null : r[8] }));
+  return { role, items, feedback, log, quotas: quotas_(date), now: new Date() };
 }
 
 // 항목 한 줄을 찾아서 고치고, 없으면 새로 추가
@@ -94,12 +116,25 @@ function doPost(e) {
     if (body.action === 'check') {
       // 팀원은 본인에게 할당된 항목만 체크 가능
       const cur = dayState_('manager', date).items[body.item.key];
-      const assignee = cur ? cur.assignee : 'manager';
+      const owner = ownerFromKey_(body.item.key);
+      const assignee = owner || (cur ? cur.assignee : 'manager');
       if (role === 'member' && assignee !== 'member') return json_({ error: 'not assigned' });
-      upsertItem_(date, body.item, { done: !!body.done, by: role });
+      upsertItem_(date, body.item, cur ? { done: !!body.done, by: role } : { done: !!body.done, by: role, assignee });
     } else if (body.action === 'assign') {
       if (role !== 'manager') return json_({ error: 'manager only' });
       body.items.forEach(it => upsertItem_(date, it, { assignee: body.assignee }));
+    } else if (body.action === 'quota') {
+      if (role !== 'manager') return json_({ error: 'manager only' });
+      const sh = sheet_('quota');
+      const values = sh.getDataRange().getValues();
+      const row = [date, body.cat, body.person, Math.max(0, Math.min(50, Number(body.n) || 0)), new Date()];
+      let found = false;
+      for (let i = 1; i < values.length; i++) {
+        if (DAY_(values[i][0]) === date && values[i][1] === body.cat && values[i][2] === body.person) {
+          sh.getRange(i + 1, 1, 1, 5).setValues([row]); found = true; break;
+        }
+      }
+      if (!found) sh.appendRow(row);
     } else if (body.action === 'feedback') {
       if (role !== 'manager') return json_({ error: 'manager only' });
       if (String(body.text || '').trim()) sheet_('feedback').appendRow([date, body.to, String(body.text).trim(), new Date()]);
@@ -109,11 +144,12 @@ function doPost(e) {
       const sh = sheet_('log');
       const values = sh.getDataRange().getValues();
       body.summary.forEach(s => {
-        const row = [date, s.person, s.assigned, s.done, s.pct, new Date()];
+        const row = [date, s.person, s.assigned, s.done, s.pct == null ? '' : s.pct, new Date(),
+          s.start ? new Date(s.start) : '', s.end ? new Date(s.end) : '', s.workMin == null ? '' : s.workMin];
         let found = false;
         for (let i = 1; i < values.length; i++) {
           const d = values[i][0] instanceof Date ? Utilities.formatDate(values[i][0], 'Asia/Seoul', 'yyyy-MM-dd') : values[i][0];
-          if (d === date && values[i][1] === s.person) { sh.getRange(i + 1, 1, 1, 6).setValues([row]); found = true; break; }
+          if (d === date && values[i][1] === s.person) { sh.getRange(i + 1, 1, 1, row.length).setValues([row]); found = true; break; }
         }
         if (!found) sh.appendRow(row);
       });
