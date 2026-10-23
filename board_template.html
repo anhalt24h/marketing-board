@@ -281,7 +281,8 @@ function personStats(who) {
   }
   return {person: who, assigned: mine.length, done: mine.filter(i => isDone(i.key)).length, pct: w ? Math.round(score / w * 100) : null};
 }
-const summaries = () => ["manager", "member"].map(personStats).filter(s => s.assigned > 0);
+// 할당이 0개가 된 사람도 보내서 시트의 이전 값을 덮어쓴다 (pct = null → "할당 없음")
+const summaries = () => ["manager", "member"].map(personStats);
 
 function showNotice(msg) {
   $("notices").insertAdjacentHTML("afterbegin", `<div class="notice">${esc(msg)}</div>`);
