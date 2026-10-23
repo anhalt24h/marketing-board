@@ -3,7 +3,9 @@
 
 keywords.json 의 키워드로 유튜브를 검색해 영상 링크를 모으고,
 네이버 지식인 / 스레드 링크와 함께 docs/index.html 로 만든다 (GitHub Pages 로 공개).
-이전에 보여준 영상은 seen_videos.json 에 기록해 다음 날 다시 나오지 않게 한다.
+댓글 완료로 체크된 영상은 구글 시트 기록에서 읽어 done_videos.json 에 모아 두고 다시 추천하지 않는다.
+체크하지 못한 영상은 그날 검색 결과와 기준을 통과하면 다시 나올 수 있다.
+(시트를 읽지 못한 날은 안전하게 예전처럼 한 번 보여준 영상을 모두 제외한다.)
 
 급상승 판단: 하루 평균 조회수(조회수 / 업로드 후 경과 시간)로 순위를 매긴다.
 검색에 걸린 영상의 조회수는 view_history.json 에 날짜별로 쌓아 두고,
@@ -23,6 +25,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 CONFIG = ROOT / "keywords.json"
 SEEN = ROOT / "seen_videos.json"
+DONE = ROOT / "done_videos.json"
+DONE_LOOKBACK_DAYS = 7  # 며칠 전 보드까지 시트에서 완료 체크를 다시 읽을지
 HISTORY = ROOT / "view_history.json"
 OUT = ROOT / "docs" / "index.html"
 KST = dt.timezone(dt.timedelta(hours=9))
@@ -78,6 +82,18 @@ def views_per_day(v, history, today):
         return 0, None
     # 막 올라온 영상의 과대평가를 막기 위해 최소 6시간으로 본다
     return v["view_count"] / max(v["age_hours"], 6) * 24, "average"
+
+
+def fetch_done_videos(api_url, key, today):
+    """최근 며칠 보드에서 댓글 완료로 체크된 영상 ID. 하루라도 못 읽으면 None."""
+    done = set()
+    for back in range(DONE_LOOKBACK_DAYS + 1):
+        day = (dt.date.fromisoformat(today) - dt.timedelta(days=back)).isoformat()
+        res = json.loads(curl(f"{api_url}?k={urllib.parse.quote(key)}&date={day}"))
+        if "error" in res:
+            raise RuntimeError(res["error"])
+        done |= {k[3:] for k, it in res.get("items", {}).items() if k.startswith("yt:") and it.get("done")}
+    return done
 
 
 def fetch_videos_scrape(keyword, sort):
@@ -167,6 +183,20 @@ def main():
     # 오늘 이미 생성했다면 같은 영상 목록을 유지 (재실행해도 바뀌지 않게)
     todays_ids = {vid for vid, day in seen.items() if day == today}
 
+    # 댓글 완료 영상 목록 (시트 기록 + 지난 실행까지 모아 둔 것)
+    done = set(json.loads(DONE.read_text(encoding="utf-8"))) if DONE.exists() else set()
+    read_key = os.environ.get("BOARD_READ_KEY")
+    try:
+        if not (cfg.get("api_url") and read_key):
+            raise RuntimeError("BOARD_READ_KEY 없음")
+        done |= fetch_done_videos(cfg["api_url"], read_key, today)
+        exclude = lambda vid: vid in done
+        print(f"댓글 완료 영상 {len(done)}개 제외 (미완료 영상은 다시 추천 가능)")
+    except Exception as e:
+        exclude = lambda vid: vid in seen
+        print(f"[경고] 완료 기록을 읽지 못해 이전에 보여준 영상을 모두 제외합니다: {e}", file=sys.stderr)
+    DONE.write_text(json.dumps(sorted(done), indent=0), encoding="utf-8")
+
     # 1) 키워드별 검색 결과 수집 + 조회수 기록
     searches = []
     for kind, key in (("타겟 검색 키워드", "search_keywords"), ("타겟 시청 콘텐츠", "content_keywords")):
@@ -183,7 +213,7 @@ def main():
                     history.setdefault(v["id"], {})[today] = v["view_count"]
             searches.append((kind, kw, found))
 
-    fresh = lambda v: v["id"] not in seen or v["id"] in todays_ids
+    fresh = lambda v: not exclude(v["id"]) or v["id"] in todays_ids
 
     # 2) 전체 후보 중 하루 조회수 상위 → 급상승 그룹 (맨 위에 노출)
     candidates = {}
