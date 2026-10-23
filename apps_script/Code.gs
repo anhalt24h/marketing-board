@@ -11,6 +11,7 @@
  *   notice   : ID | 분류 | 종류 | 대상 | 내용 | 작성시각 | 사용   (과업별 공지 · 피드백, 지울 때는 사용=FALSE)
  *
  * 접근 키: 보드 링크 끝의 #k=... 값. 관리자 키는 할당/피드백까지, 팀원 키는 본인 과업 체크만 가능.
+ * 팀원 키로는 본인 담당 과업의 기록만 내려가고, 본인 수행율 · 소요시간만 쓸 수 있다.
  */
 const KEYS = {
   '__MANAGER_KEY__': 'manager',
@@ -72,7 +73,9 @@ function json_(obj) {
 function dayState_(role, date) {
   const items = {};
   rows_('items').filter(r => r[0] === date).forEach(r => {
-    items[r[1]] = { label: r[2], cat: r[3], assignee: r[4] || 'manager', done: r[5] === true, doneBy: r[6], doneAt: r[7] };
+    const assignee = ownerFromKey_(r[1]) || r[4] || 'manager';
+    if (role !== 'manager' && assignee !== role) return;  // 팀원에게는 팀장 과업 기록을 보내지 않음
+    items[r[1]] = { label: r[2], cat: r[3], assignee, done: r[5] === true, doneBy: r[6], doneAt: r[7] };
   });
   const feedback = rows_('feedback')
     .filter(r => role === 'manager' || r[1] === role)
@@ -159,10 +162,11 @@ function doPost(e) {
       if (String(body.text || '').trim()) sheet_('feedback').appendRow([date, body.to, String(body.text).trim(), new Date()]);
     }
     // 화면에서 계산한 사람별 수행율을 log 에 반영 (날짜+담당 기준으로 덮어쓰기)
+    // 팀원은 본인 줄만 쓸 수 있음. 팀장은 할당을 바꾸므로 수행율은 둘 다, 소요시간은 본인 것만 씀
     if (body.summary) {
       const sh = sheet_('log');
       const values = sh.getDataRange().getValues();
-      body.summary.forEach(s => {
+      body.summary.filter(s => role === 'manager' || s.person === role).forEach(s => {
         const row = [date, s.person, s.assigned, s.done, s.pct == null ? '' : s.pct, new Date(),
           s.start ? new Date(s.start) : '', s.end ? new Date(s.end) : '', s.workMin == null ? '' : s.workMin];
         let found = false;
@@ -178,13 +182,13 @@ function doPost(e) {
       const sh = sheet_('worklog');
       const values = sh.getDataRange().getValues();
       const idx = [];
-      for (let i = 1; i < values.length; i++) if (DAY_(values[i][0]) === date) idx.push(i + 1);
+      for (let i = 1; i < values.length; i++) if (DAY_(values[i][0]) === date && values[i][1] === role) idx.push(i + 1);
       const contiguous = idx.length && idx[idx.length - 1] - idx[0] === idx.length - 1;
       // 맨 아래 구간이면 내용만 지움 (머리글 아래 행을 전부 삭제하는 건 시트가 허용하지 않음)
       if (contiguous && idx[idx.length - 1] === values.length) sh.getRange(idx[0], 1, idx.length, values[0].length).clearContent();
       else if (contiguous) sh.deleteRows(idx[0], idx.length);
       else for (let j = idx.length - 1; j >= 0; j--) sh.deleteRow(idx[j]);
-      const rows = body.worklog.map(w => [date, w.person, w.cat, w.label, w.from ? new Date(w.from) : '',
+      const rows = body.worklog.filter(w => w.person === role).map(w => [date, w.person, w.cat, w.label, w.from ? new Date(w.from) : '',
         w.at ? new Date(w.at) : '', w.min == null ? '' : w.min, w.note || '']);
       if (rows.length) sh.getRange(sh.getLastRow() + 1, 1, rows.length, rows[0].length).setValues(rows);
     }

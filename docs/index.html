@@ -362,7 +362,7 @@ function applyServer(res) {
 function post(body) {
   if (!ONLINE) { store.set("local-" + DATA.date, JSON.stringify({items, quotas})); return; }
   pending++;
-  fetch(DATA.api_url, {method: "POST", body: JSON.stringify({k: ACCESS, date: DATA.date, summary: summaries(), worklog: worklogRows(), ...body})})
+  fetch(DATA.api_url, {method: "POST", body: JSON.stringify({k: ACCESS, date: DATA.date, ...ownRecords(), ...body})})
     .then(r => r.json()).then(res => { pending--; if (!pending) applyServer(res); })
     .catch(() => { pending--; showNotice("저장에 실패했어요. 인터넷 연결을 확인하고 새로고침해 주세요."); });
 }
@@ -463,6 +463,13 @@ function worklogRows() {
   });
 }
 
+// 서버에 보낼 기록: 팀원은 본인 것만 (팀장 과업은 받지도 않음), 팀장은 할당을 바꾸므로 수행율은 둘 다
+function ownRecords() {
+  const mine = me();
+  return {summary: role === "manager" ? summaries() : summaries().filter(s => s.person === mine),
+    worklog: worklogRows().filter(r => r.person === mine)};
+}
+
 // 할당이 0개가 된 사람도 보내서 시트의 이전 값을 덮어쓴다 (pct = null → "할당 없음")
 const summaries = () => PEOPLE.map(personStats);
 
@@ -493,7 +500,7 @@ function renderFilters() {
   const mgr = role === "manager";
   const opts = !ONLINE ? [["all", "전체"], ["todo", "남은 것"], ["done", "완료"]]
     : mgr ? [["all", "전체"], ["member", `${NAMES.member} 할당`], ["todo", "남은 것"], ["done", "완료"]]
-    : [["mine", "내 과업"], ["all", "전체"], ["done", "완료"]];
+    : [["mine", "내 과업"], ["todo", "남은 것"], ["done", "완료"]];
   if (filterRole !== role || !opts.some(o => o[0] === filter)) { filter = opts[0][0]; filterRole = role; }
   $("filters").innerHTML = opts.map(([f, t]) => `<button class="btn${f === filter ? " on" : ""}" data-f="${f}">${t}</button>`).join("");
   document.querySelectorAll("[data-f]").forEach(b => b.onclick = () => { filter = b.dataset.f; render(); });
@@ -522,8 +529,10 @@ function renderVideos() {
     const k = el.dataset.vid, done = isDone(k), a = assignee(k);
     el.classList.toggle("done", done);
     el.classList.toggle("mine-member", ONLINE && a === "member");
-    const show = filter === "all" || (filter === "done" && done) || (filter === "todo" && !done)
-      || ((filter === "member" || filter === "mine") && a === "member");
+    // 팀원 화면에서는 팀장 담당 영상을 아예 숨김
+    const allowed = !ONLINE || role === "manager" || a === "member";
+    const show = allowed && (filter === "all" || (filter === "done" && done) || (filter === "todo" && !done)
+      || ((filter === "member" || filter === "mine") && a === "member"));
     el.style.display = show ? "" : "none";
   });
   document.querySelectorAll(".group").forEach(g => {
