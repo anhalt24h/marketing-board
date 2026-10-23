@@ -2,5 +2,11 @@
 board.html
 *.log
 work_log.json
-apps_script/*.local.gs
+**/apps_script/*.local.gs
+__pycache__/
 .DS_Store
+
+# 스레드 자동화 (공개 저장소라 올리지 않음 — 계정 운영 정보·레퍼런스 스크린샷 포함)
+스레드 자동화 시스템/
+CLAUDE.local.md
+.claude/

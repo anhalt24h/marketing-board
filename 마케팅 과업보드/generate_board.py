@@ -28,7 +28,7 @@ SEEN = ROOT / "seen_videos.json"
 DONE = ROOT / "done_videos.json"
 DONE_LOOKBACK_DAYS = 7  # 며칠 전 보드까지 시트에서 완료 체크를 다시 읽을지
 HISTORY = ROOT / "view_history.json"
-OUT = ROOT / "docs" / "index.html"
+OUT = ROOT.parent / "docs" / "index.html"  # GitHub Pages 는 저장소 루트의 docs 만 서비스한다
 KST = dt.timezone(dt.timedelta(hours=9))
 
 # sp 파라미터: 업로드 기간 필터 (week=이번 주, month=이번 달, relevance=기간 제한 없이 관련도순)
