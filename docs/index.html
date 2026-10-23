@@ -132,6 +132,23 @@ section.box{background:var(--card);border:1px solid var(--line);border-radius:14
 .rate{display:inline-block;font-size:11.5px;font-weight:700;color:var(--yt)}
 .rank{position:absolute;left:6px;top:6px;background:var(--yt);color:#fff;font-size:12px;font-weight:700;padding:1px 7px;border-radius:6px}
 
+/* 공지 · 피드백 */
+.notes{display:flex;flex-direction:column;gap:6px}
+.notes:empty{display:none}
+.note{display:flex;align-items:flex-start;gap:8px;font-size:13px;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:7px 9px}
+.note .k{flex:none;font-size:11px;font-weight:700;padding:1px 7px;border-radius:99px;margin-top:1px}
+.note .k.notice{background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent)}
+.note .k.feedback{background:color-mix(in srgb,var(--yt) 13%,transparent);color:var(--yt)}
+.note .txt{flex:1;white-space:pre-wrap;word-break:break-word}
+.note .to{flex:none;font-size:11px;color:var(--muted)}
+.note .x{flex:none;appearance:none;border:0;background:none;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 2px}
+.note-form{display:none;flex-wrap:wrap;gap:6px;align-items:center}
+.note-form.open{display:flex}
+.note-form select,.note-form input{border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;font-size:13px;padding:5px 7px}
+.note-form input{flex:1;min-width:160px}
+.add-note{align-self:flex-start}
+#common-box .notes{margin-top:2px}
+
 /* 기록 */
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:4px 0 14px}
 .stat{background:var(--chip);border-radius:10px;padding:10px 12px}
@@ -146,6 +163,13 @@ section.box{background:var(--card);border:1px solid var(--line);border-radius:14
 .logtable td:first-child,.logtable th:first-child{text-align:left;white-space:nowrap}
 .logtable td.fbcell{text-align:left;min-width:180px}
 .logtable .sub{color:var(--muted);font-size:12px}
+.daybtn{appearance:none;border:0;background:none;color:var(--ink);font:inherit;font-size:13px;cursor:pointer;padding:0;text-align:left}
+.daybtn:hover,.daybtn.on{color:var(--accent);text-decoration:underline}
+#day-detail{margin-top:14px}
+#day-detail:empty{display:none}
+.detail-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:6px}
+.detail-head h3{margin:0;font-size:15px}
+.detail-head span{font-size:12.5px;color:var(--muted)}
 @media (max-width:900px){.summary{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:520px){.grid{grid-template-columns:1fr}h1{font-size:22px}.timeline td.tk{max-width:150px}}
 </style>
@@ -159,6 +183,12 @@ section.box{background:var(--card);border:1px solid var(--line);border-radius:14
     </div>
     <div class="live off" id="live"><i></i><span>연결 전</span></div>
   </header>
+
+  <section class="box" id="common-box">
+    <div class="sec-head"><h2>📌 공지 · 피드백</h2><span class="hint">모든 과업에 공통으로 참고할 내용</span></div>
+    <div class="notes" id="notes-common"></div>
+    <div class="empty" id="notes-common-empty">등록된 공통 공지가 없어요.</div>
+  </section>
 
   <div id="notices"></div>
 
@@ -182,11 +212,13 @@ section.box{background:var(--card);border:1px solid var(--line);border-radius:14
       <h2><span class="dot" style="background:var(--yt)"></span>유튜브 댓글</h2>
       <div class="count" id="yt-count">0 / 0</div>
       <div class="meta" id="yt-meta">아래 영상에 들어가서 댓글 달고 체크하기</div>
+      <div class="notes" id="notes-yt"></div>
       <div class="btns"><a class="btn primary" href="#videos">영상 목록 보기 ↓</a></div>
     </div>
     <div class="task" id="t-kin">
       <h2><span class="dot" style="background:var(--kin)"></span>네이버 지식인</h2>
       <div class="meta">답변 1건 끝낼 때마다 칸을 하나씩 체크</div>
+      <div class="notes" id="notes-kin"></div>
       <div id="units-kin"></div>
       <div class="btns">
         <a class="btn primary" id="kin-link" target="_blank" rel="noopener">지식인 열기</a>
@@ -196,6 +228,7 @@ section.box{background:var(--card);border:1px solid var(--line);border-radius:14
     <div class="task" id="t-th">
       <h2><span class="dot" style="background:var(--th)"></span>스레드</h2>
       <div class="meta">게시 1건 끝낼 때마다 칸을 하나씩 체크</div>
+      <div class="notes" id="notes-threads"></div>
       <div id="units-threads"></div>
       <div class="btns">
         <button class="btn primary" id="th-both">두 창 모두 열기</button>
@@ -210,6 +243,7 @@ section.box{background:var(--card);border:1px solid var(--line);border-radius:14
       <h2>유튜브 댓글 대상 영상</h2>
       <div class="filters" id="filters"></div>
     </div>
+    <div class="notes" id="notes-yt2"></div>
     <div id="groups"></div>
   </section>
 
@@ -250,6 +284,7 @@ let role = ONLINE ? null : "manager";  // 서버 응답으로 확정
 let items = {};      // 항목키 → {assignee, done, doneBy, doneAt}
 let feedback = [], logRows = [];
 let quotas = {kin: {manager: 1, member: 0}, threads: {manager: 1, member: 0}};
+let notices = [];
 let pending = 0, lastSync = null;
 const me = () => role === "member" ? "member" : "manager";
 const visiblePeople = () => !ONLINE ? ["manager"] : role === "manager" ? PEOPLE : ["member"];
@@ -319,6 +354,7 @@ function applyServer(res) {
   if (!res || res.error) { showNotice("서버 오류: " + (res?.error || "응답 없음")); return; }
   role = res.role; items = res.items || {}; feedback = res.feedback || []; logRows = res.log || [];
   if (res.quotas) quotas = res.quotas;
+  if (res.notices) notices = res.notices;
   lastSync = Date.now();
   buildItems();
   render();
@@ -326,7 +362,7 @@ function applyServer(res) {
 function post(body) {
   if (!ONLINE) { store.set("local-" + DATA.date, JSON.stringify({items, quotas})); return; }
   pending++;
-  fetch(DATA.api_url, {method: "POST", body: JSON.stringify({k: ACCESS, date: DATA.date, summary: summaries(), ...body})})
+  fetch(DATA.api_url, {method: "POST", body: JSON.stringify({k: ACCESS, date: DATA.date, summary: summaries(), worklog: worklogRows(), ...body})})
     .then(r => r.json()).then(res => { pending--; if (!pending) applyServer(res); })
     .catch(() => { pending--; showNotice("저장에 실패했어요. 인터넷 연결을 확인하고 새로고침해 주세요."); });
 }
@@ -395,6 +431,7 @@ function timeline(p) {
   let prev = start, work = 0, counted = 0;
   for (const e of events) {
     const gap = prev != null ? e.t - prev : null;
+    e.from = prev;
     e.brk = gap != null && gap > BREAK_MS;
     e.dur = gap != null && gap >= 0 && !e.brk ? gap : null;
     if (e.dur != null) { work += e.dur; counted++; }
@@ -415,6 +452,17 @@ function personStats(p) {
     start: tl.first ? new Date(tl.first).toISOString() : null, end: tl.last ? new Date(tl.last).toISOString() : null,
     workMin: tl.work == null ? null : Math.round(tl.work / 60000)};
 }
+// 시트 worklog 탭에 남길 과업별 소요시간 (업무 시작 1줄 + 완료한 과업마다 1줄)
+function worklogRows() {
+  const iso = t => t == null ? null : new Date(t).toISOString();
+  return PEOPLE.flatMap(p => {
+    const tl = timeline(p);
+    const rows = tl.start ? [{person: p, cat: "start", label: "업무 시작", from: null, at: iso(tl.start), min: null, note: ""}] : [];
+    return rows.concat(tl.events.map(e => ({person: p, cat: e.cat, label: e.label, from: iso(e.from), at: iso(e.t),
+      min: e.dur == null ? null : Math.round(e.dur / 6000) / 10, note: e.brk ? "휴식 후 (소요시간 제외)" : e.from == null ? "업무 시작 전 체크" : ""})));
+  });
+}
+
 // 할당이 0개가 된 사람도 보내서 시트의 이전 값을 덮어쓴다 (pct = null → "할당 없음")
 const summaries = () => PEOPLE.map(personStats);
 
@@ -436,6 +484,7 @@ function render() {
   renderPeople();
   renderCumChart();
   renderTimeline();
+  renderNotes();
   renderNotices();
   renderLog();
 }
@@ -600,8 +649,60 @@ function renderTimeline() {
     : `<tr><td class="empty">"업무 시작"을 누르고 과업을 하나씩 체크하면 시각과 소요시간이 기록돼요.</td></tr>`;
 }
 
+const NOTE_CATS = {common: "notes-common", yt: "notes-yt", kin: "notes-kin", threads: "notes-threads"};
+function renderNotes() {
+  const mgr = role === "manager" && ONLINE;
+  const html = cat => notices.filter(n => n.cat === cat).map(n => `<div class="note">
+      <span class="k ${n.kind === "feedback" ? "feedback" : "notice"}">${n.kind === "feedback" ? "피드백" : "공지"}</span>
+      <span class="txt">${esc(n.text)}</span>
+      ${mgr && n.target !== "all" ? `<span class="to">→ ${esc(NAMES[n.target] || n.target)}</span>` : ""}
+      ${mgr ? `<button class="x" data-note-del="${esc(n.id)}" title="지우기">×</button>` : ""}</div>`).join("");
+  for (const [cat, id] of Object.entries(NOTE_CATS)) $(id).innerHTML = html(cat);
+  $("notes-yt2").innerHTML = html("yt");
+  $("notes-common-empty").style.display = notices.some(n => n.cat === "common") ? "none" : "";
+  // 관리자용 추가 폼 (각 상자에 한 번만 붙임)
+  for (const [cat, id] of Object.entries(NOTE_CATS)) {
+    const list = $(id);
+    if (!mgr || list.nextElementSibling?.classList.contains("note-tools")) continue;
+    list.insertAdjacentHTML("afterend", `<div class="note-tools">
+      <button class="btn small add-note" data-note-open="${cat}">+ 공지 · 피드백 추가</button>
+      <div class="note-form" id="nf-${cat}">
+        <select id="nf-kind-${cat}"><option value="notice">공지</option><option value="feedback">피드백</option></select>
+        <select id="nf-target-${cat}"><option value="all">전체</option><option value="member">${esc(NAMES.member)}만</option><option value="manager">${esc(NAMES.manager)}만</option></select>
+        <input id="nf-text-${cat}" placeholder="이 과업을 할 때 참고할 내용" maxlength="300">
+        <button class="btn small primary" data-note-add="${cat}">추가</button>
+      </div></div>`);
+  }
+}
+document.addEventListener("click", e => {
+  const open = e.target.closest("[data-note-open]");
+  if (open) { $("nf-" + open.dataset.noteOpen).classList.toggle("open"); return; }
+  const add = e.target.closest("[data-note-add]");
+  if (add) {
+    const cat = add.dataset.noteAdd, input = $("nf-text-" + cat), text = input.value.trim();
+    if (!text) return;
+    const n = {cat, kind: $("nf-kind-" + cat).value, target: $("nf-target-" + cat).value, text};
+    notices.push({...n, id: "tmp" + Date.now()});
+    input.value = "";
+    $("nf-" + cat).classList.remove("open");
+    render();
+    post({action: "noticeAdd", ...n});
+    return;
+  }
+  const del = e.target.closest("[data-note-del]");
+  if (del) {
+    notices = notices.filter(n => n.id !== del.dataset.noteDel);
+    render();
+    post({action: "noticeRemove", id: del.dataset.noteDel});
+  }
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter" && e.target.id?.startsWith("nf-text-")) $(`nf-${e.target.id.slice(8)}`).querySelector("[data-note-add]").click();
+});
+
 function renderNotices() {
   $("notices").innerHTML = "";
+  $("common-box").style.display = ONLINE ? "" : "none";
   if (!ONLINE) {
     if (DATA.api_url) showNotice("접근 링크(#k=...)로 열어야 할당 · 기록 기능을 쓸 수 있어요.");
     return;
@@ -673,12 +774,58 @@ function renderLog() {
     <div class="tablewrap"><table class="logtable">
       <tr><th>날짜</th>${people.map(p => `<th>${esc(NAMES[p])} 수행율</th><th>${esc(NAMES[p])} 근무시간</th>`).join("")}<th>${esc(NAMES.member)} 피드백</th></tr>
       ${days.map(k => `<tr>
-        <td>${dayLabel(k)}${k === DATA.date ? " · 오늘" : ""}</td>
+        <td><button class="daybtn${k === detailDay ? " on" : ""}" data-day-detail="${k}">${dayLabel(k)}${k === DATA.date ? " · 오늘" : ""} ▸</button></td>
         ${people.map(p => `<td>${cell(byDay[k][p])}</td><td>${timeCell(byDay[k][p])}</td>`).join("")}
         <td class="fbcell">${(fbByDay[k] || []).map(f => `<div>${esc(f.text)}</div>`).join("") || `<span class="sub">—</span>`}</td>
       </tr>`).join("")}
-    </table></div>`;
+    </table></div>
+    <div id="day-detail"></div>`;
   renderTrend(byDay, people);
+  renderDayDetail();
+}
+
+// 날짜를 누르면 그날 과업별 소요시간 (오늘은 화면 상태, 지난 날은 시트 worklog 에서 불러옴)
+let detailDay = null, detailRows = null;
+const detailCache = {};
+function liveWorklog() {
+  return worklogRows().filter(r => visiblePeople().includes(r.person));
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-day-detail]");
+  if (!b) return;
+  const k = b.dataset.dayDetail;
+  if (detailDay === k) { detailDay = null; renderLog(); return; }
+  detailDay = k;
+  detailRows = k === DATA.date ? null : detailCache[k] || "loading";
+  renderLog();
+  if (k !== DATA.date && !detailCache[k]) {
+    fetch(`${DATA.api_url}?k=${encodeURIComponent(ACCESS)}&date=${k}`).then(r => r.json()).then(res => {
+      detailCache[k] = res.worklog || [];
+      if (detailDay === k) { detailRows = detailCache[k]; renderLog(); }
+    }).catch(() => { if (detailDay === k) { detailRows = []; renderLog(); } });
+  }
+});
+function renderDayDetail() {
+  const el = $("day-detail");
+  if (!el) return;
+  if (!detailDay) { el.innerHTML = ""; return; }
+  const rows = detailDay === DATA.date ? liveWorklog() : detailRows;
+  if (rows === "loading") { el.innerHTML = `<div class="empty">${dayLabel(detailDay)} 기록을 불러오는 중…</div>`; return; }
+  const done = rows.filter(r => r.cat !== "start");
+  const byCat = Object.keys(CATS).map(c => {
+    const v = done.filter(r => r.cat === c && typeof r.min === "number");
+    return v.length ? `${CATS[c]} 건당 ${dur(v.reduce((a, r) => a + r.min, 0) / v.length * 60000)}` : "";
+  }).filter(Boolean).join(" · ");
+  el.innerHTML = `<div class="detail-head"><h3>${dayLabel(detailDay)} 과업별 소요시간</h3><span>${done.length}건 완료${byCat ? " · " + byCat : ""}</span></div>
+    ${rows.length ? `<div class="timeline-wrap"><table class="timeline">
+      <tr><th>담당</th><th>과업</th><th>시작</th><th>완료</th><th>소요</th><th>비고</th></tr>
+      ${rows.slice().sort((a, b) => T(a.at) - T(b.at)).map(r => `<tr>
+        <td><span class="pdot ${r.person}"></span>${esc(NAMES[r.person] || r.person)}</td>
+        <td class="tk" title="${esc(r.label)}">${r.cat === "yt" ? "유튜브 · " : ""}${esc(r.label)}</td>
+        <td class="t">${hm(T(r.from))}</td><td class="t">${hm(T(r.at))}</td>
+        <td class="t">${typeof r.min === "number" ? dur(r.min * 60000) : "—"}</td>
+        <td class="sub">${esc(r.note || "")}</td></tr>`).join("")}
+    </table></div>` : `<div class="empty">이날 기록된 과업이 없어요.</div>`}`;
 }
 
 // 최근 14일 수행율: 날짜별 막대 (사람별 나란히, 2px 간격, 윗끝 둥글게)
