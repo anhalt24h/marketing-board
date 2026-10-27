@@ -19,6 +19,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 import urllib.parse
 from pathlib import Path
 
@@ -39,10 +40,20 @@ AGE_UNITS = {"초": 1 / 3600, "분": 1 / 60, "시간": 1, "일": 24, "주": 24 *
 UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130 Safari/537.36"
 
 
-def curl(url):
+def curl(url, timeout=20, tries=1):
     # macOS 기본 python 은 SSL 인증서가 없는 경우가 많아 시스템 curl 로 받아온다
+    for i in range(tries):
+        try:
+            return _curl_once(url, timeout)
+        except subprocess.CalledProcessError:
+            if i == tries - 1:
+                raise
+            time.sleep(5)
+
+
+def _curl_once(url, timeout):
     return subprocess.run(
-        ["curl", "-sL", "--fail", "--max-time", "20", "-A", UA, "-H", "Accept-Language: ko-KR,ko;q=0.9", url],
+        ["curl", "-sL", "--fail", "--max-time", str(timeout), "-A", UA, "-H", "Accept-Language: ko-KR,ko;q=0.9", url],
         capture_output=True, check=True).stdout.decode("utf-8", "replace")
 
 
@@ -98,7 +109,8 @@ def fetch_done_videos(api_url, key, today):
     done = set()
     for back in range(DONE_LOOKBACK_DAYS + 1):
         day = (dt.date.fromisoformat(today) - dt.timedelta(days=back)).isoformat()
-        res = json.loads(curl(f"{api_url}?k={urllib.parse.quote(key)}&date={day}"))
+        # Apps Script 웹 앱은 한동안 안 쓰면 첫 응답이 20초를 넘기기도 해서 넉넉히 기다리고 한 번 더 시도한다
+        res = json.loads(curl(f"{api_url}?k={urllib.parse.quote(key)}&date={day}", timeout=60, tries=2))
         if "error" in res:
             raise RuntimeError(res["error"])
         done |= {k[3:] for k, it in res.get("items", {}).items() if k.startswith("yt:") and it.get("done")}
