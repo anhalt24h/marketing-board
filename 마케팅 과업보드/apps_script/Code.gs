@@ -9,6 +9,8 @@
  *   quota    : 날짜 | 분류 | 담당 | 목표건수 | 갱신시각   (그날 값이 없으면 가장 최근 값을 이어서 씀)
  *   worklog  : 날짜 | 담당 | 분류 | 과업 | 시작 | 완료 | 소요(분) | 비고   (과업 1건마다 1줄, 체크할 때마다 그날 분량을 다시 씀)
  *   notice   : ID | 분류 | 종류 | 대상 | 내용 | 작성시각 | 사용   (과업별 공지 · 피드백, 지울 때는 사용=FALSE)
+ *   yt       : 날짜 | 영상ID | 제목 | 채널 | 길이 | 조회수 | 설명 | 인기댓글 | 수집시각 | 요약 | 흐름 | 댓글1 | 댓글2 | 댓글3 | 작성시각
+ *              (A~I는 아침 보드 생성기가 ytInfo 로 채우고, J~O는 8시 클라우드 루틴이 댓글안을 쓴다)
  *
  * 접근 키: 보드 링크 끝의 #k=... 값. 관리자 키는 할당/피드백까지, 팀원 키는 본인 과업 체크만 가능.
  * 팀원 키로는 본인 담당 과업의 기록만 내려가고, 본인 수행율 · 소요시간만 쓸 수 있다.
@@ -25,6 +27,7 @@ const TABS = {
   quota: ['날짜', '분류', '담당', '목표건수', '갱신시각'],
   worklog: ['날짜', '담당', '분류', '과업', '시작', '완료', '소요(분)', '비고'],
   notice: ['ID', '분류', '종류', '대상', '내용', '작성시각', '사용'],
+  yt: ['날짜', '영상ID', '제목', '채널', '길이', '조회수', '설명', '인기댓글', '수집시각', '요약', '흐름', '댓글1', '댓글2', '댓글3', '작성시각'],
 };
 
 function sheet_(name) {
@@ -90,7 +93,38 @@ function dayState_(role, date) {
   const notices = sheet_('notice').getDataRange().getValues().slice(1)
     .filter(r => r[6] !== false && (role === 'manager' || r[3] === 'all' || r[3] === role))
     .map(r => ({ id: String(r[0]), cat: r[1], kind: r[2], target: r[3], text: r[4], at: r[5] }));
-  return { role, items, feedback, log, quotas: quotas_(date), worklog, notices, now: new Date() };
+  return { role, items, feedback, log, quotas: quotas_(date), worklog, notices, ytNotes: ytNotes_(date), now: new Date() };
+}
+
+// 그날 영상별 요약 · 흐름 · 댓글안 (루틴이 아직 안 썼으면 빠짐)
+function ytNotes_(date) {
+  const notes = {};
+  rows_('yt').filter(r => r[0] === date && String(r[11]).trim()).forEach(r => {
+    notes[String(r[1])] = { summary: r[9], flow: r[10], comments: [r[11], r[12], r[13]].map(String).filter(c => c.trim()) };
+  });
+  return notes;
+}
+
+// 보드 생성기가 보낸 영상 정보를 날짜+영상ID 기준으로 기록 (이미 쓴 댓글안 J~O는 건드리지 않음)
+function saveYtInfo_(date, videos) {
+  const sh = sheet_('yt');
+  const values = sh.getDataRange().getValues();
+  const at = {};
+  for (let i = 1; i < values.length; i++) at[DAY_(values[i][0]) + '|' + values[i][1]] = i + 1;
+  const now = new Date();
+  const fresh = [];
+  (videos || []).forEach(v => {
+    const row = [date, String(v.id), v.title || '', v.channel || '', v.length || '', v.views || '',
+      String(v.description || '').slice(0, 3000), String(v.comments || '').slice(0, 5000), now];
+    const r = at[date + '|' + v.id];
+    if (r) sh.getRange(r, 1, 1, row.length).setValues([row]);
+    else fresh.push(row);
+  });
+  if (fresh.length) {
+    const start = sh.getLastRow() + 1;
+    sh.getRange(start, 1, fresh.length, 1).setNumberFormat('@');  // 날짜를 글자 그대로 (루틴이 읽기 쉽게)
+    sh.getRange(start, 1, fresh.length, fresh[0].length).setValues(fresh);
+  }
 }
 
 // 항목 한 줄을 찾아서 고치고, 없으면 새로 추가
@@ -126,7 +160,9 @@ function doPost(e) {
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
-    if (body.action === 'check') {
+    if (body.action === 'ytInfo') {
+      saveYtInfo_(date, body.videos);
+    } else if (body.action === 'check') {
       // 팀원은 본인에게 할당된 항목만 체크 가능
       const cur = dayState_('manager', date).items[body.item.key];
       const owner = ownerFromKey_(body.item.key);

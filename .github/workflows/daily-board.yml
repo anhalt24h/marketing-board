@@ -2,7 +2,7 @@ name: daily-board
 
 on:
   schedule:
-    - cron: "0 0 * * *"  # 매일 09:00 KST (GitHub 사정으로 몇 분~수십 분 늦어질 수 있음)
+    - cron: "0 22 * * *"  # 매일 07:00 KST (UTC 전날 22시) (GitHub 사정으로 몇 분~수십 분 늦어질 수 있음)
   workflow_dispatch:      # Actions 탭에서 수동 실행
 
 permissions:

@@ -46,6 +46,15 @@ def curl(url):
         capture_output=True, check=True).stdout.decode("utf-8", "replace")
 
 
+def post_json(url, obj):
+    # Apps Script 웹 앱은 text/plain 본문을 받는다 (응답 전에 302로 넘기므로 -L 로 따라간다)
+    return subprocess.run(
+        ["curl", "-sL", "--fail", "--max-time", "60", "-H", "Content-Type: text/plain;charset=utf-8",
+         "--data-binary", "@-", url],
+        input=json.dumps(obj, ensure_ascii=False).encode("utf-8"), capture_output=True, check=True
+    ).stdout.decode("utf-8", "replace")
+
+
 def parse_views(text):
     digits = re.sub(r"[^0-9]", "", text or "")
     return int(digits) if digits else None
@@ -94,6 +103,33 @@ def fetch_done_videos(api_url, key, today):
             raise RuntimeError(res["error"])
         done |= {k[3:] for k, it in res.get("items", {}).items() if k.startswith("yt:") and it.get("done")}
     return done
+
+
+def fetch_top_comments(vid, key, n=10):
+    """인기 댓글 n개 ("좋아요 수 · 내용"). 댓글이 막힌 영상은 빈 목록."""
+    try:
+        res = json.loads(curl("https://www.googleapis.com/youtube/v3/commentThreads?" + urllib.parse.urlencode(
+            {"part": "snippet", "videoId": vid, "order": "relevance", "maxResults": n, "textFormat": "plainText", "key": key})))
+    except Exception:
+        return []
+    out = []
+    for it in res.get("items", []):
+        c = it["snippet"]["topLevelComment"]["snippet"]
+        out.append(f"{c.get('likeCount', 0)} · " + re.sub(r"\s+", " ", c.get("textDisplay", "")).strip()[:300])
+    return out
+
+
+def send_video_info(api_url, key, today, videos, api_key):
+    """오늘 영상의 설명란 · 인기 댓글을 비공개 기록 시트(yt 탭)로 보낸다. 댓글안은 클라우드 루틴이 채운다."""
+    info = []
+    for v in videos:
+        info.append({"id": v["id"], "title": v["title"], "channel": v.get("channel", ""), "length": v.get("length", ""),
+                     "views": v.get("views", ""), "description": v.get("description", "")[:3000],
+                     "comments": "\n".join(fetch_top_comments(v["id"], api_key)) if api_key else ""})
+    res = json.loads(post_json(api_url, {"k": key, "date": today, "action": "ytInfo", "videos": info}))
+    if "error" in res:
+        raise RuntimeError(res["error"])
+    print(f"영상 정보 {len(info)}개를 기록 시트로 보냄 (댓글안은 8시 루틴이 작성)")
 
 
 def fetch_videos_scrape(keyword, sort):
@@ -163,6 +199,7 @@ def fetch_videos_api(keyword, sort, key):
             "length": iso_duration(it.get("contentDetails", {}).get("duration")),
             "view_count": count,
             "age_hours": age,
+            "description": sn.get("description", ""),
         })
     return videos
 
@@ -244,6 +281,14 @@ def main():
 
     if not used:
         sys.exit("영상을 하나도 가져오지 못했어요. 기존 보드를 유지합니다.")
+
+    # 오늘 보드에 올린 영상 정보를 기록 시트로 (실패해도 보드는 그대로 만든다)
+    if cfg.get("api_url") and read_key:
+        by_id = {v["id"]: v for _, _, found in searches for v in found}
+        try:
+            send_video_info(cfg["api_url"], read_key, today, [by_id[vid] for vid in by_id if vid in used], api_key)
+        except Exception as e:
+            print(f"[경고] 영상 정보를 기록 시트로 보내지 못했어요: {e}", file=sys.stderr)
 
     for vid in used:
         seen.setdefault(vid, today)

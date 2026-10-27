@@ -122,6 +122,19 @@ section.box{background:var(--card);border:1px solid var(--line);border-radius:14
 .check input{width:18px;height:18px;accent-color:var(--accent)}
 .check input:disabled{cursor:not-allowed}
 .check .at{color:var(--muted);font-size:11.5px;font-variant-numeric:tabular-nums}
+/* 영상 요약 · 댓글안 (접근 키로 열었을 때만, 8시 루틴이 채움) */
+.ytc{font-size:12.5px}
+.ytc.wait{color:var(--muted);font-size:12px}
+.ytc details{border:1px solid var(--line);border-radius:9px;background:var(--chip)}
+.ytc summary{cursor:pointer;padding:6px 9px;font-weight:600;list-style:none}
+.ytc summary::-webkit-details-marker{display:none}
+.ytc summary::after{content:" ▾";color:var(--muted)}
+.ytc details[open] summary::after{content:" ▴"}
+.ytc .in{padding:0 9px 9px;display:flex;flex-direction:column;gap:8px}
+.ytc .lbl{font-size:11px;color:var(--muted);margin-bottom:2px}
+.ytc .txt{white-space:pre-line;line-height:1.5;color:var(--ink)}
+.ytc .cmt{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 8px}
+.ytc .cmt-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
 .vid.done{opacity:.45}
 .vid.done .title{text-decoration:line-through}
 .who{appearance:none;border:1px solid var(--line);background:var(--chip);color:var(--muted);border-radius:99px;padding:1px 9px;font:inherit;font-size:11.5px;cursor:default}
@@ -285,6 +298,7 @@ let items = {};      // 항목키 → {assignee, done, doneBy, doneAt}
 let feedback = [], logRows = [];
 let quotas = {kin: {manager: 1, member: 0}, threads: {manager: 1, member: 0}};
 let notices = [];
+let ytNotes = {};    // 영상ID → {summary, flow, comments[]}
 let pending = 0, lastSync = null;
 const me = () => role === "member" ? "member" : "manager";
 const visiblePeople = () => !ONLINE ? ["manager"] : role === "manager" ? PEOPLE : ["member"];
@@ -339,6 +353,7 @@ $("groups").innerHTML = DATA.groups.map((g, gi) => `
           <div class="sub">${esc(v.channel)}${g.hot && v.keyword ? ` · #${esc(v.keyword)}` : ""}</div>
           ${rateText(v) ? `<div class="rate">${esc(rateText(v))}</div>` : ""}
           <div class="sub">${esc([v.views, v.published].filter(Boolean).join(" · "))}</div>
+          <div class="ytc" data-ytc="${esc(v.id)}"></div>
           <div class="foot">
             <label class="check"><input type="checkbox" data-key="yt:${esc(v.id)}">댓글 완료 <span class="at"></span></label>
             <button class="who" data-who="yt:${esc(v.id)}"></button>
@@ -355,6 +370,7 @@ function applyServer(res) {
   role = res.role; items = res.items || {}; feedback = res.feedback || []; logRows = res.log || [];
   if (res.quotas) quotas = res.quotas;
   if (res.notices) notices = res.notices;
+  if (res.ytNotes) ytNotes = res.ytNotes;
   lastSync = Date.now();
   buildItems();
   render();
@@ -539,11 +555,42 @@ function renderVideos() {
     const cards = [...g.querySelectorAll(".vid")];
     g.style.display = cards.length && cards.every(c => c.style.display === "none") ? "none" : "";
   });
+  renderYtNotes();
   const mine = ONLINE && role === "member" ? "member" : null;
   const yt = VIDEOS.filter(i => !mine || assignee(i.key) === mine);
   $("yt-count").textContent = `${yt.filter(i => isDone(i.key)).length} / ${yt.length}`;
   $("yt-meta").textContent = mine ? `${NAMES.member}님에게 할당된 영상` : "아래 영상에 들어가서 댓글 달고 체크하기";
 }
+
+// 영상 카드 안 요약 · 댓글안. 내용이 바뀔 때만 다시 그려서 펼쳐 둔 칸이 닫히지 않게 한다
+function renderYtNotes() {
+  document.querySelectorAll("[data-ytc]").forEach(el => {
+    const n = ONLINE ? ytNotes[el.dataset.ytc] : null;
+    const sig = n ? JSON.stringify(n) : ONLINE && role ? "wait" : "";
+    if (el.dataset.sig === sig) return;
+    el.dataset.sig = sig;
+    el.className = "ytc" + (sig === "wait" ? " wait" : "");
+    el.innerHTML = !n ? (sig === "wait" ? "📝 댓글안 준비 중 (오전 8시쯤 채워져요)" : "") : `
+      <details>
+        <summary>📝 영상 내용 · 댓글안 ${n.comments.length}개</summary>
+        <div class="in">
+          ${n.summary ? `<div><div class="lbl">요약</div><div class="txt">${esc(n.summary)}</div></div>` : ""}
+          ${n.flow ? `<div><div class="lbl">흐름</div><div class="txt">${esc(n.flow)}</div></div>` : ""}
+          ${n.comments.map((c, i) => `<div class="cmt">
+            <div class="cmt-head"><span class="lbl">댓글안 ${i + 1}</span><button class="btn small" data-copy="${i}">복사</button></div>
+            <div class="txt">${esc(c)}</div></div>`).join("")}
+        </div>
+      </details>`;
+  });
+}
+$("groups").addEventListener("click", e => {
+  const b = e.target.closest("[data-copy]");
+  if (!b) return;
+  const n = ytNotes[b.closest("[data-ytc]").dataset.ytc];
+  navigator.clipboard.writeText(n.comments[+b.dataset.copy]).then(() => {
+    b.textContent = "복사됨 ✓"; setTimeout(() => b.textContent = "복사", 1500);
+  }, () => showNotice("복사하지 못했어요. 글을 길게 눌러 직접 복사해 주세요."));
+});
 
 // 지식인 / 스레드: 사람별 할당량 + 1건씩 체크하는 칸 (체크하면 시각 표시)
 function renderUnits() {
