@@ -135,6 +135,10 @@ section.box{background:var(--card);border:1px solid var(--line);border-radius:14
 .ytc .txt{white-space:pre-line;line-height:1.5;color:var(--ink)}
 .ytc .cmt{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 8px}
 .ytc .cmt-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.ytc .pick{background:color-mix(in srgb,var(--accent) 18%,transparent);border-radius:4px;padding:0 2px}
+.ytc .opts{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.ytc .opt{appearance:none;border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:99px;padding:2px 9px;font:inherit;font-size:11.5px;cursor:pointer}
+.ytc .opt.on{background:var(--accent);border-color:var(--accent);color:#fff}
 .vid.done{opacity:.45}
 .vid.done .title{text-decoration:line-through}
 .who{appearance:none;border:1px solid var(--line);background:var(--chip);color:var(--muted);border-radius:99px;padding:1px 9px;font:inherit;font-size:11.5px;cursor:default}
@@ -563,6 +567,19 @@ function renderVideos() {
 }
 
 // 영상 카드 안 요약 · 댓글안. 내용이 바뀔 때만 다시 그려서 펼쳐 둔 칸이 닫히지 않게 한다
+// 댓글안의 [보기1 / 보기2 / 보기3]은 고르는 칸이다. 고른 보기로 완성된 문장을 보여 주고 그대로 복사한다
+const cmtParts = c => c.split(/(\[[^\]]*\/[^\]]*\])/).filter(Boolean)
+  .map(s => /^\[.*\]$/.test(s) ? s.slice(1, -1).split("/").map(o => o.trim()).filter(Boolean) : s);
+const cmtPicks = {};
+const cmtText = (vid, i, c) => cmtParts(c).map((p, g) => typeof p === "string" ? p : p[(cmtPicks[vid + ":" + i] || {})[g] || 0]).join("");
+function cmtHtml(vid, i, c) {
+  const pk = cmtPicks[vid + ":" + i] || {};
+  const parts = cmtParts(c);
+  const out = parts.map((p, g) => typeof p === "string" ? esc(p) : `<span class="pick">${esc(p[pk[g] || 0])}</span>`).join("");
+  const opts = parts.map((p, g) => typeof p === "string" ? "" : `<div class="opts">${p.map((o, k) =>
+    `<button class="opt${(pk[g] || 0) === k ? " on" : ""}" data-pick="${i}:${g}:${k}">${esc(o)}</button>`).join("")}</div>`).join("");
+  return `<div class="txt">${out}</div>${opts}`;
+}
 function renderYtNotes() {
   document.querySelectorAll("[data-ytc]").forEach(el => {
     const n = ONLINE ? ytNotes[el.dataset.ytc] : null;
@@ -578,16 +595,24 @@ function renderYtNotes() {
           ${n.flow ? `<div><div class="lbl">흐름</div><div class="txt">${esc(n.flow)}</div></div>` : ""}
           ${n.comments.map((c, i) => `<div class="cmt">
             <div class="cmt-head"><span class="lbl">댓글안 ${i + 1}</span><button class="btn small" data-copy="${i}">복사</button></div>
-            <div class="txt">${esc(c)}</div></div>`).join("")}
+            <div data-cmt="${i}">${cmtHtml(el.dataset.ytc, i, c)}</div></div>`).join("")}
         </div>
       </details>`;
   });
 }
 $("groups").addEventListener("click", e => {
+  const o = e.target.closest("[data-pick]");
+  if (o) {
+    const vid = o.closest("[data-ytc]").dataset.ytc;
+    const [i, g, k] = o.dataset.pick.split(":").map(Number);
+    (cmtPicks[vid + ":" + i] ||= {})[g] = k;
+    o.closest("[data-cmt]").innerHTML = cmtHtml(vid, i, ytNotes[vid].comments[i]);
+    return;
+  }
   const b = e.target.closest("[data-copy]");
   if (!b) return;
-  const n = ytNotes[b.closest("[data-ytc]").dataset.ytc];
-  navigator.clipboard.writeText(n.comments[+b.dataset.copy]).then(() => {
+  const vid = b.closest("[data-ytc]").dataset.ytc;
+  navigator.clipboard.writeText(cmtText(vid, +b.dataset.copy, ytNotes[vid].comments[+b.dataset.copy])).then(() => {
     b.textContent = "복사됨 ✓"; setTimeout(() => b.textContent = "복사", 1500);
   }, () => showNotice("복사하지 못했어요. 글을 길게 눌러 직접 복사해 주세요."));
 });
