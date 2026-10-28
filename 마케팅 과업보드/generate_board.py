@@ -134,9 +134,14 @@ def fetch_top_comments(vid, key, n=10):
 def send_video_info(api_url, key, today, videos, api_key):
     """오늘 영상의 설명란 · 인기 댓글을 비공개 기록 시트(yt 탭)로 보낸다. 댓글안은 클라우드 루틴이 채운다."""
     info = []
+    now = dt.datetime.now(KST)
     for v in videos:
+        # 업로드 시각은 설명란 맨 앞에 붙여 보낸다 (루틴이 영상 나이에 맞춰 사용 기간을 쓰게, 시트 열은 그대로)
+        uploaded = ""
+        if v.get("age_hours") is not None:
+            uploaded = f"[업로드 {(now - dt.timedelta(hours=v['age_hours'])):%Y-%m-%d %H:%M} KST]\n"
         info.append({"id": v["id"], "title": v["title"], "channel": v.get("channel", ""), "length": v.get("length", ""),
-                     "views": v.get("views", ""), "description": v.get("description", "")[:3000],
+                     "views": v.get("views", ""), "description": (uploaded + v.get("description", ""))[:3000],
                      "comments": "\n".join(fetch_top_comments(v["id"], api_key)) if api_key else ""})
     res = json.loads(post_json(api_url, {"k": key, "date": today, "action": "ytInfo", "videos": info}))
     if "error" in res:
