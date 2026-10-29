@@ -146,7 +146,7 @@ def send_video_info(api_url, key, today, videos, api_key):
     res = json.loads(post_json(api_url, {"k": key, "date": today, "action": "ytInfo", "videos": info}))
     if "error" in res:
         raise RuntimeError(res["error"])
-    print(f"영상 정보 {len(info)}개를 기록 시트로 보냄 (댓글안은 8시 루틴이 작성)")
+    print(f"영상 정보 {len(info)}개를 기록 시트로 보냄 (댓글안은 10시 루틴이 작성)")
 
 
 def fetch_videos_scrape(keyword, sort):
