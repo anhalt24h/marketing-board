@@ -2,7 +2,7 @@ name: daily-board
 
 on:
   schedule:
-    - cron: "37 21 * * *"  # 매일 06:37 KST (정각을 피함. GitHub 사정으로 몇 시간까지 늦어질 수 있음)
+    - cron: "7 18 * * *"  # 매일 03:07 KST (실제로는 3시간 반쯤 밀려 6:30~7시에 돎. 10시 댓글 루틴 전에 끝나도록 새벽으로 당김)
   workflow_dispatch:      # Actions 탭에서 수동 실행
 
 permissions:
